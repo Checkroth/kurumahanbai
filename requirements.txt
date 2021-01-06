@@ -1,0 +1,5 @@
+-cconstraints.txt
+django
+reportlab
+pytest
+pytest-django
