@@ -83,7 +83,7 @@ class CustomerInfo(models.Model):
     contact_phone = models.CharField('連絡先', max_length=12)
 
 
-class InCareOfInfo(models.Model):
+class RegisteredHolderInfo(models.Model):
     '''登録名義人（とうろくめいぎにん）'''
     name = models.CharField('氏名', max_length=255)
     name_furi = models.CharField('フリガナ', max_length=255)
@@ -92,16 +92,31 @@ class InCareOfInfo(models.Model):
     address = models.TextField('住所')
 
 
-class Itemization(models.Model):
-    pass
-
-
-class ExtraSectionFields(models.Model):
+class CustomSectionFields(models.Model):
     field = models.ForeignKey(ExtraField)
-    section = models.ForeignKey('ExtraSection')
+    section = models.ForeignKey('CustomSection')
 
 
-class ExtraSection(models.Model):
+class CustomSection(models.Model):
     section_name = models.CharField(max_length=255)
-    fields = models.ManyToManyField(through=ExtraSectionFields)
-    
+    fields = models.ManyToManyField(through=CustomSectionFields)
+
+
+class Itemization(models.Model):
+    '''
+    Number comments correspond to numbers on original sheet
+    '''
+    vehicle_price = models.PositiveIntegerField('車輌本体価格')  # 1
+    special_discount = models.PositiveIntegerField('特別値引き')  # 2
+
+    accessories = models.OneToOneField(  # 5
+        CustomSection,
+        description='付属品',
+        on_delete=models.CASCADE,
+    )
+
+    custom_specs = models.OneToOneField(  # 6
+        CustomSection,
+        description='特別仕様',
+        on_delete=models.PROTECT,
+    )
