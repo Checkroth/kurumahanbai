@@ -49,7 +49,7 @@ class BasicVehicleInfo(models.Model):
 
 
 class VehicleInfo(BasicVehicleInfo):
-    '''？？？（？？？）'''
+    '''車輌明細'''
     distance_traveled_unit = models.CharField(max_length=3,
                                               choices=BasicVehicleInfo.DistanceChoices,
                                               default=BasicVehicleInfo.DistanceChoices.KILOMETERS)
@@ -76,8 +76,8 @@ class CustomerInfo(models.Model):
     name_furi = models.CharField('フリガナ', max_length=255)
     birthday = models.DateField('生年月日')
     # TODO:: Validation?
-    postal_code = models.CharField('郵便番号', max_length=8) # ppp-cccc
-    phone = models.CharField('電話番号', max_length=12) # xxx-yyy-zzzz
+    postal_code = models.CharField('郵便番号', max_length=8)  # ppp-cccc
+    phone = models.CharField('電話番号', max_length=12)  # xxx-yyy-zzzz
     address = models.TextField('住所')
     contact_name = models.CharField('連絡先＿名', max_length=255)
     contact_phone = models.CharField('連絡先', max_length=12)
@@ -102,13 +102,52 @@ class CustomSection(models.Model):
     fields = models.ManyToManyField(through=CustomSectionFields)
 
 
+class InsuranceTax(models.Model):
+    '''税金・保険料'''
+    vehicle_tax = models.PositiveIntegerField('自動車税', null=True)
+    income_tax = models.PositiveIntegerField('所得税', null=True)
+    vehicle_liability_insurance = models.PositiveIntegerField('自賠責保険料')
+    optional_insurance = models.PositiveIntegerField('任意保険料')
+    stamp_duty = models.PositiveIntegerField('印紙税')
+
+
+class ConsumptionTax(models.Model):
+    '''消費税課税対象'''
+    # 手続代行費用
+    inspection_registration_delivery_tax = models.PositiveIntegerField('検査・登録・届出')
+    proof_of_storage_space = models.PositiveIntegerField('車庫証明', null=True)
+    previous_vehicle_processing_fee = models.PositiveIntegerField('下取者手続', null=True)
+    # 手続代行費用 おわり
+
+    delivery_fee = models.PositiveIntegerField('納車費用', null=True)
+    audit_fee = models.PositiveIntegerField('査定料', null=True)
+    remaining_vehicle_tax = models.PositiveIntegerField('自動車税未経過相当額', null=True)
+    remiaining_liability = models.PositiveIntegerField('自賠責未経過相当額', null=True)
+    recycle_management_fee = models.PositiveIntegerField('リサイクル資金管理料金', null=True)
+    extras = models.OneToOneField(
+        CustomSection,
+        description='追加項目',
+        on_delete=models.CASCADE,
+    )
+
+
+class TaxExemption(models.Model):
+    '''非課税'''
+    # 預り法定費用
+    inspection_registration_delivery_exemption = models.PositiveIntegerField('怨嗟・登録・届出', null=True)
+    proof_of_storage_exemption = models.PositiveIntegerField('車庫証明', null=True)
+    previous_vehicle_processing_exemption = models.PositiveIntegerField('下取者手続', null=True)
+    recycle_deposit = models.PositiveIntegerField('リサイクル預託金額合計', null=True)
+
+
 class Itemization(models.Model):
     '''
     Number comments correspond to numbers on original sheet
     '''
     vehicle_price = models.PositiveIntegerField('車輌本体価格')  # 1
     special_discount = models.PositiveIntegerField('特別値引き')  # 2
-
+    # 3 not required
+    # 4 is aggregate of 1, 2, 3
     accessories = models.OneToOneField(  # 5
         CustomSection,
         description='付属品',
@@ -120,3 +159,68 @@ class Itemization(models.Model):
         description='特別仕様',
         on_delete=models.PROTECT,
     )
+    # 7, 8 not required
+    # 9 is aggreegate of 4, 5, 6, 7, 8
+    insurance_tax = models.OneToOneField(  # 10
+        InsuranceTax,
+        description='税金・保険料',
+        on_delete=models.PROTECT,
+    )
+    consumption_tax = models.OneToOneField(  # 11
+        ConsumptionTax,
+        descriptoin='消費税課税対象（課税)',
+        on_delete=models.PROTECT,
+    )
+    consumption_tax_exemption = models.OneToOneField(  # 12
+        TaxExemption,
+        description='消費税課税対象（非課税)',
+        on_delete=models.PROTECT,
+    )
+
+    # 13 is aggregate of 4, 5, 6, 7, 8, 11, 16
+    # 14 is aggregate of all
+    down_payment = models.PositiveIntegerField('頭金', null=True)  # 15
+    trade_in_price = models.PositiveIntegerField('下取者価格', null=True)  # 16
+    # 残金 is aggregate of 14, 15, 16
+
+
+class PaymentDetails(models.Model):
+    '''支払い明細'''
+    installment_count = models.PositiveIntegerField('支払い回数', null=True)
+    initial_installment_price = models.PositiveIntegerField('初回支払い額', null=True)
+    second_and_on_installment_price = models.PositiveIntegerField('2回目以降支払い額', null=True)
+    bonus_amount = models.PositveIntegerField('ボーナス支払い額', null=True)
+    bonus_count = models.PositiveIntegerField('ボーナス回数', null=True)
+    credit_card_company = models.CharField('クレジット会社名', blank=True)
+
+
+class Order(models.Model):
+    '''注文書'''
+    # SellerAddress? (父さん会社情報)
+    vehicle_info = models.OneToOneField(
+        VehicleInfo,
+        description='車輌明細',
+        on_delete=models.PROTECT,
+    )
+    previous_vehicle_info = models.OneToOneField(
+        PreviousVehicleInfo,
+        description='下取者',
+        on_delete=models.PROTECT,
+    )
+    customer_info = models.OneToOneField(
+        CustomerInfo,
+        description='ご購入者',
+        on_delete=models.PROTECT,
+    )
+    registered_holder_info = models.OneToOneField(
+        RegisteredHolderInfo,
+        description='登録名義人',
+        on_delete=models.PROTECT,
+    )
+    itemization = models.OneToOneField(
+        Itemization,
+        description='お支払い金額詳細',
+        on_delete=models.PROTECT,
+    )
+    notes = models.TextField('備考', blank=True)
+    person_in_charge = models.CharField('担当者', max_length=255)
