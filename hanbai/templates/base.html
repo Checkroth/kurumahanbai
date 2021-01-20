@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>車販売請求書システム</title>
+		<link href="{% static 'css/base.css' %}" rel="stylesheet">
+		<!-- <script type="text/javascript" src="{% static 'jsfile.js' %}"></script> -->
+
+		{% block additional_header %}{% endblock %}
+	</head>
+
+	<body class="container">
+		<nav>
+			<ul>
+				<li>作成</li>
+				<li>続く</li>
+				<li>過去の見積書</li>
+			</ul>
+		</nav>
+		<div>
+			{% block content %}
+			{% endblock %}
+		</div>
+	</body>
+</html>
