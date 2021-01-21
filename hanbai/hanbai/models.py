@@ -31,18 +31,20 @@ class BasicVehicleInfo(models.Model):
         MILES = 'M', 'マイル'
         KILOMETERS = 'KM', 'キロメータ'
 
-    car_model = models.CharField('型式', max_length=255)
-    car_name = models.CharField('車名', max_length=255)
-    model_year = models.CharField('年式_年', max_length=2, choices=YearChoices)
+    car_model = models.CharField('型式', max_length=255, blank=True)
+    car_name = models.CharField('車名', max_length=255, blank=True)
+    model_year = models.CharField('年式_年', max_length=2, choices=YearChoices, blank=True)
     model_month = models.IntegerField('年式_月',
                                       validators=[validators.MinValueValidator(1),
-                                                  validators.MaxValueValidator(12)])
-    inspection_year = models.IntegerField('車検_年')
+                                                  validators.MaxValueValidator(12)],
+                                      null=True)
+    inspection_year = models.IntegerField('車検_年', null=True)
     inspection_month = models.IntegerField('車検_月',
                                            validators=[validators.MinValueValidator(1),
-                                                       validators.MaxValueValidator(12)])
-    model_number = models.CharField('車台番号', max_length=255)
-    registration_number = models.CharField('登録番号', max_length=255)
+                                                       validators.MaxValueValidator(12)],
+                                           null=True)
+    model_number = models.CharField('車台番号', max_length=255, blank=True)
+    registration_number = models.CharField('登録番号', max_length=255, blank=True)
 
     class Meta:
         abstract = True
@@ -52,44 +54,49 @@ class VehicleInfo(BasicVehicleInfo):
     '''車輌明細'''
     distance_traveled_unit = models.CharField(max_length=3,
                                               choices=BasicVehicleInfo.DistanceChoices,
-                                              default=BasicVehicleInfo.DistanceChoices.KILOMETERS)
-    distance_traveled = models.IntegerField('走行', validators=[validators.MinValueValidator(0)])
-    doors = models.IntegerField('ドア', validators=[validators.MinValueValidator(1)], default=5)
-    color = models.CharField('色', max_length=255)
+                                              default=BasicVehicleInfo.DistanceChoices.KILOMETERS,
+                                              blank=True)
+    distance_traveled = models.IntegerField('走行', validators=[validators.MinValueValidator(0)],
+                                            null=True)
+    doors = models.IntegerField('ドア', validators=[validators.MinValueValidator(1)], default=5,
+                                null=True)
+    color = models.CharField('色', max_length=255,
+                             blank=True)
     expeted_delivery_month = models.IntegerField('納車予定月',
                                                  validators=[validators.MinValueValidator(1),
-                                                             validators.MaxValueValidator(12)])
-    expected_delivery_year = models.IntegerField('納車予定年')
-    extra_equipment = models.TextField('装備')
+                                                             validators.MaxValueValidator(12)],
+                                                 null=True)
+    expected_delivery_year = models.IntegerField('納車予定年', null=True)
+    extra_equipment = models.TextField('装備', blank=True)
 
 
 class PreviousVehicleInfo(BasicVehicleInfo):
     '''下取車(したどりしゃ）'''
-    owner = models.TextField('使用者')
-    model_specificaiton = models.CharField('型式指定', max_length=255)
-    classification = models.CharField('類別', max_length=255)
+    owner = models.TextField('使用者', blank=True)
+    model_specificaiton = models.CharField('型式指定', max_length=255, blank=True)
+    classification = models.CharField('類別', max_length=255, blank=True)
 
 
 class CustomerInfo(models.Model):
     '''ご購入者(ごこうにゅうしゃ）'''
-    name = models.CharField('氏名', max_length=255)
-    name_furi = models.CharField('フリガナ', max_length=255)
-    birthday = models.DateField('生年月日')
+    name = models.CharField('氏名', max_length=255, blank=True)
+    name_furi = models.CharField('フリガナ', max_length=255, blank=True)
+    birthday = models.DateField('生年月日', null=True)
     # TODO:: Validation?
-    postal_code = models.CharField('郵便番号', max_length=8)  # ppp-cccc
-    phone = models.CharField('電話番号', max_length=12)  # xxx-yyy-zzzz
-    address = models.TextField('住所')
-    contact_name = models.CharField('連絡先＿名', max_length=255)
-    contact_phone = models.CharField('連絡先', max_length=12)
+    postal_code = models.CharField('郵便番号', max_length=8, blank=True)  # ppp-cccc
+    phone = models.CharField('電話番号', max_length=12, blank=True)  # xxx-yyy-zzzz
+    address = models.TextField('住所', blank=True)
+    contact_name = models.CharField('連絡先＿名', max_length=255, blank=True)
+    contact_phone = models.CharField('連絡先', max_length=12, blank=True)
 
 
 class RegisteredHolderInfo(models.Model):
     '''登録名義人（とうろくめいぎにん）'''
-    name = models.CharField('氏名', max_length=255)
-    name_furi = models.CharField('フリガナ', max_length=255)
-    postal_code = models.CharField('郵便番号', max_length=8)
-    phone = models.CharField('電話番号', max_length=12)
-    address = models.TextField('住所')
+    name = models.CharField('氏名', max_length=255, blank=True)
+    name_furi = models.CharField('フリガナ', max_length=255, blank=True)
+    postal_code = models.CharField('郵便番号', max_length=8, blank=True)
+    phone = models.CharField('電話番号', max_length=12, blank=True)
+    address = models.TextField('住所', blank=True)
 
 
 class CustomSectionFields(models.Model):
@@ -98,7 +105,7 @@ class CustomSectionFields(models.Model):
 
 
 class CustomSection(models.Model):
-    section_name = models.CharField(max_length=255)
+    section_name = models.CharField(max_length=255, blank=True)
     fields = models.ManyToManyField(through=CustomSectionFields)
 
 
@@ -106,15 +113,15 @@ class InsuranceTax(models.Model):
     '''税金・保険料'''
     vehicle_tax = models.PositiveIntegerField('自動車税', null=True)
     income_tax = models.PositiveIntegerField('所得税', null=True)
-    vehicle_liability_insurance = models.PositiveIntegerField('自賠責保険料')
-    optional_insurance = models.PositiveIntegerField('任意保険料')
-    stamp_duty = models.PositiveIntegerField('印紙税')
+    vehicle_liability_insurance = models.PositiveIntegerField('自賠責保険料', null=True)
+    optional_insurance = models.PositiveIntegerField('任意保険料', null=True)
+    stamp_duty = models.PositiveIntegerField('印紙税', null=True)
 
 
 class ConsumptionTax(models.Model):
     '''消費税課税対象'''
     # 手続代行費用
-    inspection_registration_delivery_tax = models.PositiveIntegerField('検査・登録・届出')
+    inspection_registration_delivery_tax = models.PositiveIntegerField('検査・登録・届出', null=True)
     proof_of_storage_space = models.PositiveIntegerField('車庫証明', null=True)
     previous_vehicle_processing_fee = models.PositiveIntegerField('下取者手続', null=True)
     # 手続代行費用 おわり
@@ -144,8 +151,8 @@ class Itemization(models.Model):
     '''
     Number comments correspond to numbers on original sheet
     '''
-    vehicle_price = models.PositiveIntegerField('車輌本体価格')  # 1
-    special_discount = models.PositiveIntegerField('特別値引き')  # 2
+    vehicle_price = models.PositiveIntegerField('車輌本体価格', null=True)  # 1
+    special_discount = models.PositiveIntegerField('特別値引き', null=True)  # 2
     # 3 not required
     # 4 is aggregate of 1, 2, 3
     accessories = models.OneToOneField(  # 5
@@ -196,6 +203,10 @@ class PaymentDetails(models.Model):
 
 class Order(models.Model):
     '''注文書'''
+    started = models.DateTimeField()
+    last_edited = models.DateTimeField()
+    completed = models.DateTimeField(null=True)
+
     # SellerAddress? (父さん会社情報)
     vehicle_info = models.OneToOneField(
         VehicleInfo,
@@ -223,4 +234,4 @@ class Order(models.Model):
         on_delete=models.PROTECT,
     )
     notes = models.TextField('備考', blank=True)
-    person_in_charge = models.CharField('担当者', max_length=255)
+    person_in_charge = models.CharField('担当者', max_length=255, blank=True)
