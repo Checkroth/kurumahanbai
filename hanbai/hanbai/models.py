@@ -8,7 +8,7 @@ class ExtraField(models.Model):
         INTEGER = 2
 
     field_name = models.CharField(max_length=255, null=False, blank=False)
-    value_type = models.IntegerField(choices=FieldTypeChoices)
+    value_type = models.IntegerField(choices=FieldTypeChoices.choices)
     string_value = models.CharField(max_length=255, null=True, blank=True)
     integer_value = models.IntegerField(null=True)
 
@@ -33,7 +33,7 @@ class BasicVehicleInfo(models.Model):
 
     car_model = models.CharField('型式', max_length=255, blank=True)
     car_name = models.CharField('車名', max_length=255, blank=True)
-    model_year = models.CharField('年式_年', max_length=2, choices=YearChoices, blank=True)
+    model_year = models.CharField('年式_年', max_length=2, choices=YearChoices.choices, blank=True)
     model_month = models.IntegerField('年式_月',
                                       validators=[validators.MinValueValidator(1),
                                                   validators.MaxValueValidator(12)],
@@ -53,7 +53,7 @@ class BasicVehicleInfo(models.Model):
 class VehicleInfo(BasicVehicleInfo):
     '''車輌明細'''
     distance_traveled_unit = models.CharField(max_length=3,
-                                              choices=BasicVehicleInfo.DistanceChoices,
+                                              choices=BasicVehicleInfo.DistanceChoices.choices,
                                               default=BasicVehicleInfo.DistanceChoices.KILOMETERS,
                                               blank=True)
     distance_traveled = models.IntegerField('走行', validators=[validators.MinValueValidator(0)],
@@ -100,13 +100,13 @@ class RegisteredHolderInfo(models.Model):
 
 
 class CustomSectionFields(models.Model):
-    field = models.ForeignKey(ExtraField)
-    section = models.ForeignKey('CustomSection')
+    field = models.ForeignKey(ExtraField, on_delete=models.PROTECT)
+    section = models.ForeignKey('CustomSection', on_delete=models.PROTECT)
 
 
 class CustomSection(models.Model):
     section_name = models.CharField(max_length=255, blank=True)
-    fields = models.ManyToManyField(through=CustomSectionFields)
+    fields = models.ManyToManyField(ExtraField, through=CustomSectionFields)
 
 
 class InsuranceTax(models.Model):
@@ -133,7 +133,7 @@ class ConsumptionTax(models.Model):
     recycle_management_fee = models.PositiveIntegerField('リサイクル資金管理料金', null=True)
     extras = models.OneToOneField(
         CustomSection,
-        description='追加項目',
+        help_text='追加項目',
         on_delete=models.CASCADE,
     )
 
@@ -157,30 +157,32 @@ class Itemization(models.Model):
     # 4 is aggregate of 1, 2, 3
     accessories = models.OneToOneField(  # 5
         CustomSection,
-        description='付属品',
+        related_name='itemization_accessories',
+        help_text='付属品',
         on_delete=models.CASCADE,
     )
 
     custom_specs = models.OneToOneField(  # 6
         CustomSection,
-        description='特別仕様',
+        related_name='itemization_custom_specs',
+        help_text='特別仕様',
         on_delete=models.PROTECT,
     )
     # 7, 8 not required
     # 9 is aggreegate of 4, 5, 6, 7, 8
     insurance_tax = models.OneToOneField(  # 10
         InsuranceTax,
-        description='税金・保険料',
+        help_text='税金・保険料',
         on_delete=models.PROTECT,
     )
     consumption_tax = models.OneToOneField(  # 11
         ConsumptionTax,
-        descriptoin='消費税課税対象（課税)',
+        help_text='消費税課税対象（課税)',
         on_delete=models.PROTECT,
     )
     consumption_tax_exemption = models.OneToOneField(  # 12
         TaxExemption,
-        description='消費税課税対象（非課税)',
+        help_text='消費税課税対象（非課税)',
         on_delete=models.PROTECT,
     )
 
@@ -196,9 +198,9 @@ class PaymentDetails(models.Model):
     installment_count = models.PositiveIntegerField('支払い回数', null=True)
     initial_installment_price = models.PositiveIntegerField('初回支払い額', null=True)
     second_and_on_installment_price = models.PositiveIntegerField('2回目以降支払い額', null=True)
-    bonus_amount = models.PositveIntegerField('ボーナス支払い額', null=True)
+    bonus_amount = models.PositiveIntegerField('ボーナス支払い額', null=True)
     bonus_count = models.PositiveIntegerField('ボーナス回数', null=True)
-    credit_card_company = models.CharField('クレジット会社名', blank=True)
+    credit_card_company = models.CharField('クレジット会社名', max_length=255, blank=True)
 
 
 class Order(models.Model):
@@ -210,27 +212,27 @@ class Order(models.Model):
     # SellerAddress? (父さん会社情報)
     vehicle_info = models.OneToOneField(
         VehicleInfo,
-        description='車輌明細',
+        help_text='車輌明細',
         on_delete=models.PROTECT,
     )
     previous_vehicle_info = models.OneToOneField(
         PreviousVehicleInfo,
-        description='下取者',
+        help_text='下取者',
         on_delete=models.PROTECT,
     )
     customer_info = models.OneToOneField(
         CustomerInfo,
-        description='ご購入者',
+        help_text='ご購入者',
         on_delete=models.PROTECT,
     )
     registered_holder_info = models.OneToOneField(
         RegisteredHolderInfo,
-        description='登録名義人',
+        help_text='登録名義人',
         on_delete=models.PROTECT,
     )
     itemization = models.OneToOneField(
         Itemization,
-        description='お支払い金額詳細',
+        help_text='お支払い金額詳細',
         on_delete=models.PROTECT,
     )
     notes = models.TextField('備考', blank=True)
