@@ -1,5 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-ORDER LIST
+{% if not orders %}	
+注文書は存在しません。<a href="{% url 'create_new_order' %}">新規作成してください</a>
+{% else %}
+<table class="orders-table">
+	<thead>
+		<tr>
+			<th>車名</th>
+			<th>購入者</th>
+			<th>完了日時</th>
+			<th>変更日時</th>
+			<th>着手日時</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for order in orders %}
+		<tr>
+			<td>{{ order.vehicle_info.car_name }}</td>
+			<td>{{ order.customer_info.name }}</td>
+			<td>{% if order.completed %}{{ order.completed|date:"Y/m/d H:i" }}{% endif %}</td>
+			<td>{% if order.last_edited %}{{ order.last_edited|date:"Y/m/d H:i" }}{% endif %}</td>
+			<td>{{ order.started|date:"Y/m/d H:i" }}</td>
+			<td><a href="{% url 'edit_order' order_id=order.id %}">編集</a></td>
+			<td><a href="">コピー</a></td>
+			<td><a href="">ダウンロード</a></td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endif %}
+
 {% endblock %}

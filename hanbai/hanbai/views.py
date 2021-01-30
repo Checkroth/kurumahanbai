@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 
 from . import api
-from .models import Order
 
 
 def top(request):
@@ -25,4 +24,6 @@ def create_new_order(request):
 
 
 def order_list(request):
-    return render(request, 'order_list.html')
+    repo = api.get_order_repository()
+    orders = repo.get_all_orders()
+    return render(request, 'order_list.html', {'orders': orders})

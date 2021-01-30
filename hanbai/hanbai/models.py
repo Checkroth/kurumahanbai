@@ -206,7 +206,7 @@ class PaymentDetails(models.Model):
 class Order(models.Model):
     '''注文書'''
     started = models.DateTimeField()
-    last_edited = models.DateTimeField()
+    last_edited = models.DateTimeField(null=True)
     completed = models.DateTimeField(null=True)
 
     # SellerAddress? (父さん会社情報)

@@ -21,3 +21,38 @@ nav li {
     border: solid white;
     background: red;
 }
+
+#mainform ul {
+    display: flex;
+    list-style-type: none;
+    justify-content: center;
+    padding: 0;
+}
+
+#mainform li {
+    border: solid 1px black;
+}
+
+#mainform ul.form-container {
+    flex-direction: column;
+}
+
+#mainform .col {
+    flex-direction: column;
+}
+
+#mainform li.top-half {
+    flex-direction: row;
+}
+
+#mainform ul.topleft {
+    /* justify-content: left; */
+}
+
+#mainform ul.topright {
+    /* justify-content: right; */
+}
+
+#mainform li.bottom-half {
+    flex-direction: row;
+}
