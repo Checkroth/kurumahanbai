@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load hanbai_extras %}
 
 {% block content %}
 <div id="mainform">
@@ -9,6 +10,79 @@
 				<ul class="topleft col">
 					<li class="form-header">
 						<h1>注文書</h1>
+					</li>
+					<li class="table-header">車輌明細</li>
+					<li class="basic-table">
+						<form>
+							<table>
+								<tr>
+									{{ vehicle_info_form.car_name|as_columns|safe }}
+								</tr>
+								<tr>
+									<td>年式</td>
+									<td>
+										{{ vehicle_info_form.model_year }}
+										{{ vehicle_info_form.model_month }}
+									</td>
+									{{ vehicle_info_form.color|as_columns|safe }}
+								</tr>
+								<tr>
+									{{ vehicle_info_form.car_model|as_columns|safe }}
+									{{ vehicle_info_form.model_number|as_columns|safe }}
+								</tr>
+								<tr>
+									{{ vehicle_info_form.distance_traveled|as_columns|safe }}
+									{{ vehicle_info_form.registration_number|as_columns|safe }}
+								</tr>
+								<tr>
+									{{ vehicle_info_form.engine_displacement|as_columns|safe }}
+									<td>車検</td>
+									<td>
+										{{ vehicle_info_form.inspection_year }}
+										{{ vehicle_info_form.inspection_month }}
+									</td>
+								</tr>
+								<tr>
+									<td>納車予定</td>
+									<td>
+										{{ vehicle_info_form.expected_delivery_year }}
+										{{ vehicle_info_form.expected_delivery_month }}
+									</td>
+								</tr>
+								<tr>
+									{{ vehicle_info_form.doors|as_columns|safe }}
+								</tr>
+								<tr>
+									{{ vehicle_info_form.extra_equipment|as_columns|safe }}
+								</tr>
+							</table>
+						</form>
+					</li>
+					<li class="table-header">下取車</li>
+					<li class="basic-table">
+						<form>
+							<table>
+								<tr>
+									{{ previous_vehicle_form.car_name|as_columns|safe }}
+								</tr>
+								<tr>
+									{{ previous_vehicle_form.model_number|as_columns|safe }}
+									<td>年式</td>
+									<td>
+										{{ previous_vehicle_form.model_year }}
+										{{ previous_vehicle_form.model_month }}
+									</td>
+								</tr>
+								<tr>
+									{{ previous_vehicle_form.registration_number|as_columns|safe }}
+									<td>車検</td>
+									<td>
+										{{ previous_vehicle_form.inspection_year }}
+										{{ previous_vehicle_form.inspection_month }}
+									</td>
+								</tr>
+							</table>
+						</form>
 					</li>
 				</ul>
 				<ul class="topright col">

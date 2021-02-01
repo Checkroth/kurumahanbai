@@ -62,6 +62,7 @@ class VehicleInfo(BasicVehicleInfo):
                                 null=True)
     color = models.CharField('色', max_length=255,
                              blank=True)
+    engine_displacement = models.CharField('排気量cc', max_length=255, null=True, blank=True)
     expeted_delivery_month = models.IntegerField('納車予定月',
                                                  validators=[validators.MinValueValidator(1),
                                                              validators.MaxValueValidator(12)],
