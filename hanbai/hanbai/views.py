@@ -22,6 +22,7 @@ def edit_order(request, order_id):
         'vehicle_info_form': forms.VehicleInfoForm(instance=order.vehicle_info),
         'previous_vehicle_form': forms.PreviousVehicleInfoForm(instance=order.previous_vehicle_info),
         'customer_info_form': forms.CustomerInfoForm(instance=order.customer_info),
+        'registered_holder_info_form': forms.RegisteredHolderInfoForm(instance=order.registered_holder_info),
     }
     return render(request, 'mainform.html', ctx)
 

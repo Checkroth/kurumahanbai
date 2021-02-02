@@ -37,6 +37,14 @@ nav li {
     border: solid 1px black;
 }
 
+#mainform input {
+    width: 90%;
+}
+
+#mainform input.double {
+    width: 40%;
+}
+
 #mainform ul.form-container {
     flex-direction: column;
 }
@@ -64,9 +72,10 @@ nav li {
 }
 
 
-#mainform li.labeled-table li.vertical-label {
+#mainform li.vertical-label {
     writing-mode: vertical-rl;
     text-orientation: upright;
     padding: 1em .5em;
     letter-spacing: 1em;
+    float: left;
 }

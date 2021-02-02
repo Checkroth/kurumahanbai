@@ -104,7 +104,7 @@
 					</li>
 					<li class="labeled-table">
 						<ul>
-							<li class="vertical-label">ご購入者
+							<li class="vertical-label">ご購入者</li>
 							<li>
 								<table>
 									<tr>{{ customer_info_form.name_furi|as_columns|safe }}</tr>
@@ -112,6 +112,11 @@
 									<tr>{{ customer_info_form.birthday|as_columns|safe }}</tr>
 									<tr>{{ customer_info_form.postal_code|as_columns|safe }}</tr>
 									<tr>{{ customer_info_form.address|as_columns|safe }}</tr>
+									<tr>
+										<td>連絡先</td>
+										<td>{{ customer_info_form.contact_name }}</td>
+										<td>Tel: {{ customer_info_form.contact_phone }}</td>
+									</tr>
 								</table>
 						</ul>
 					</li>
@@ -120,6 +125,15 @@
 							<li class="vertical-label">登録名義人</li>
 							<li>
 								<table>
+									<tr>{{ registered_holder_info_form.name_furi|as_columns|safe }}</tr>
+									<tr>{{ registered_holder_info_form.name|as_columns|safe }}</tr>
+									<tr>
+										<td>〒</td>
+										<td>{{ registered_holder_info_form.postal_code }}</td>
+										<td>Tel</td>
+										<td>{{ registered_holder_info_form.phone }}</td>
+									</tr>
+									<tr>{{ registered_holder_info_form.address|as_columns|safe }}</tr>
 								</table>
 						</ul>
 					</li>
