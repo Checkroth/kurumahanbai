@@ -81,6 +81,14 @@
 										{{ previous_vehicle_form.inspection_month }}
 									</td>
 								</tr>
+								<tr>
+									{{ previous_vehicle_form.owner|as_columns|safe }}
+									{{ previous_vehicle_form.car_model|as_columns|safe }}
+								</tr>
+								<tr>
+									{{ previous_vehicle_form.model_specification|as_columns|safe }}
+									{{ previous_vehicle_form.classification|as_columns|safe }}
+								</tr>
 							</table>
 						</form>
 					</li>
@@ -93,6 +101,27 @@
 						有利本荘市加賀沢字加賀沢４５<br />
 						ＴＥＬ６６ー２１０４<br />
 						ＦＡＸ６６ー２１８５
+					</li>
+					<li class="labeled-table">
+						<ul>
+							<li class="vertical-label">ご購入者
+							<li>
+								<table>
+									<tr>{{ customer_info_form.name_furi|as_columns|safe }}</tr>
+									<tr>{{ customer_info_form.name|as_columns|safe }}</tr>
+									<tr>{{ customer_info_form.birthday|as_columns|safe }}</tr>
+									<tr>{{ customer_info_form.postal_code|as_columns|safe }}</tr>
+									<tr>{{ customer_info_form.address|as_columns|safe }}</tr>
+								</table>
+						</ul>
+					</li>
+					<li>
+						<ul>
+							<li class="vertical-label">登録名義人</li>
+							<li>
+								<table>
+								</table>
+						</ul>
 					</li>
 				</ul>
 

@@ -74,7 +74,7 @@ class VehicleInfo(BasicVehicleInfo):
 class PreviousVehicleInfo(BasicVehicleInfo):
     '''下取車(したどりしゃ）'''
     owner = models.TextField('使用者', blank=True)
-    model_specificaiton = models.CharField('型式指定', max_length=255, blank=True)
+    model_specification = models.CharField('型式指定', max_length=255, blank=True)
     classification = models.CharField('類別', max_length=255, blank=True)
 
 
