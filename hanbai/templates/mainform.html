@@ -105,19 +105,21 @@
 					<li class="labeled-table">
 						<ul>
 							<li class="vertical-label">ご購入者</li>
-							<li>
-								<table>
-									<tr>{{ customer_info_form.name_furi|as_columns|safe }}</tr>
-									<tr>{{ customer_info_form.name|as_columns|safe }}</tr>
-									<tr>{{ customer_info_form.birthday|as_columns|safe }}</tr>
-									<tr>{{ customer_info_form.postal_code|as_columns|safe }}</tr>
-									<tr>{{ customer_info_form.address|as_columns|safe }}</tr>
-									<tr>
-										<td>連絡先</td>
-										<td>{{ customer_info_form.contact_name }}</td>
-										<td>Tel: {{ customer_info_form.contact_phone }}</td>
-									</tr>
-								</table>
+							<li class="basic-table">
+								<form>
+									<table>
+										<tr>{{ customer_info_form.name_furi|as_columns|safe }}</tr>
+										<tr>{{ customer_info_form.name|as_columns|safe }}</tr>
+										<tr>{{ customer_info_form.birthday|as_columns|safe }}</tr>
+										<tr>{{ customer_info_form.postal_code|as_columns|safe }}</tr>
+										<tr>{{ customer_info_form.address|as_columns|safe }}</tr>
+										<tr>
+											<td>連絡先</td>
+											<td>{{ customer_info_form.contact_name }}</td>
+											<td>Tel: {{ customer_info_form.contact_phone }}</td>
+										</tr>
+									</table>
+								</form>
 						</ul>
 					</li>
 					<li>
@@ -150,22 +152,22 @@
 				<li class="math-separator">=</li>
 				<li>
 					<div class="box-label">車輌販売価額</div>
-					<div class="box">2,221,000</div>
+					<div class="box">2,137,880</div>
 				</li>
 				<li class="math-separator">+</li>
 				<li>
 					<div class="box-label">諸費用合計</div>
-					<div class="box">2,221,000</div>
+					<div class="box">83,120</div>
 				</li>
 				<li class="math-separator">+</li>
 				<li>
 					<div class="box-label">消費税合計</div>
-					<div class="box">2,221,000</div>
+					<div class="box">0</div>
 				</li>
 				<li class="math-separator">-</li>
 				<li>
 					<div class="box-label">下取車価額</div>
-					<div class="box">2,221,000</div>
+					<div class="box">0</div>
 				</li>
 			</ul>
 		</li>
@@ -181,19 +183,59 @@
 					<li class="labeled-table">
 						<ul>
 							<li class="vertical-label">税金・保険量</li>
-							<li>
-								<table>
-									{{ customer_info_form.name|as_columns|safe }}
-								</table>
+							<li class="basic-table">
+								<form>
+									<table>
+										<tr>{{ insurance_tax_form.vehicle_tax|as_columns|safe }}</tr>
+										<tr>{{ insurance_tax_form.acquisition_tax|as_columns|safe }}</tr>
+										<tr>{{ insurance_tax_form.weight_tax|as_columns|safe }}</tr>
+										<tr>{{ insurance_tax_form.vehicle_liability_insurance|as_columns|safe }}</tr>
+										<tr>{{ insurance_tax_form.optional_insurance|as_columns|safe }}</tr>
+										<tr>{{ insurance_tax_form.stamp_duty|as_columns|safe }}</tr>
+										<tr class="total-row">
+											<td>合計</td><td>35150</td>
+										</tr>
+									</table>
+								</form>
 							</li>
 						</ul>
 					</li>
 					<li class="labeled-table">
 						<ul>
 							<li class="vertical-label">消費税課税対象</li>
-							<li>
+							<li class="basic-table">
 								<table>
+									<form>
+										<tr>手続代行費用</tr>
+										<tr>{{ consumption_tax_form.inspection_registration_delivery_tax|as_columns|safe }}</tr>
+										<tr>{{ consumption_tax_form.proof_of_storage_space|as_columns|safe }}</tr>
+										<tr>{{ consumption_tax_form.previous_vehicle_processing_fee|as_columns|safe }}</tr>
+										<tr>{{ consumption_tax_form.delivery_fee|as_columns|safe }}</tr>
+										<tr>{{ consumption_tax_form.audit_fee|as_columns|safe }}</tr>
+										<tr>{{ consumption_tax_form.remaining_vehicle_tax|as_columns|safe }}</tr>
+										<tr>{{ consumption_tax_form.remaining_liability|as_columns|safe }}</tr>
+										<tr>{{ consumption_tax_form.recycle_management_fee|as_columns|safe }}</tr>
+									</form>
+									<form>
+										<!-- consumption tax extras, etc. -->
+									</form>
 								</table>
+							</li>
+						</ul>
+					</li>
+					<li class="labeled-table">
+						<ul>
+							<li class="vertical-label">非課税</li>
+							<li class="basic-table">
+								<form>
+									<table>
+										<tr>預り法定費用</tr>
+										<tr>{{ tax_exemption_form.inspection_registration_delivery_exemption|as_columns|safe }}</tr>
+										<tr>{{ tax_exemption_form.proof_of_storage_exemption|as_columns|safe }}</tr>
+										<tr>{{ tax_exemption_form.previous_vehicle_processing_exemption|as_columns|safe }}</tr>
+										<tr>{{ tax_exemption_form.recycle_deposit|as_columns|safe }}</tr>
+									</table>
+								</form>
 							</li>
 						</ul>
 					</li>

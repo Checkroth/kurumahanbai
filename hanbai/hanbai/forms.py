@@ -51,3 +51,27 @@ class RegisteredHolderInfoForm(forms.ModelForm):
     class Meta:
         fields = '__all__'
         model = models.RegisteredHolderInfo
+
+
+class ItemizationForm(forms.ModelForm):
+    class Meta:
+        fields = '__all__'
+        model = models.Itemization
+
+
+class InsuranceTaxForm(forms.ModelForm):
+    class Meta:
+        fields = '__all__'
+        model = models.InsuranceTax
+
+
+class ConsumptionTaxForm(forms.ModelForm):
+    class Meta:
+        fields = '__all__'
+        model = models.ConsumptionTax
+
+
+class TaxExemptionForm(forms.ModelForm):
+    class Meta:
+        fields = '__all__'
+        model = models.TaxExemption

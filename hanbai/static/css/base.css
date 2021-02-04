@@ -13,7 +13,7 @@ nav ul {
     flex-wrap: wrap;
     list-style-type: none;
     justify-content: flex-start;
-    background: blue;
+    background: #479CC6;
     padding: .2em 2em;
 
 }
@@ -41,6 +41,9 @@ ul.main-row {
     border: solid 1px black;
 }
 
+#mainform td {
+    min-width: 20px;
+}
 #mainform input {
     width: 90%;
 }
@@ -57,6 +60,7 @@ ul.main-row {
     flex-direction: column;
     min-width: 500px;
     height: 100%;
+    padding: 0 .5em;
 }
 
 #mainform .col.thirds {
@@ -88,6 +92,10 @@ ul.main-row {
     float: left;
 }
 
+#mainform li.basic-table {
+    width: 100%;
+}
+
 
 li.math-separator {
     font-size: 3em;
@@ -96,7 +104,7 @@ li.math-separator {
 }
 
 div.box {
-    border: solid blue 1px;
+    border: solid #479CC6 1px;
     border-radius: 7px;
     text-align: right;
     font-size: 1.5em;
@@ -106,7 +114,7 @@ div.box {
 }
 
 div.box.total {
-    border: solid blue 2px;
+    border: solid #479CC6 2px;
 }
 
 

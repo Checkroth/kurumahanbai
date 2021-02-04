@@ -113,7 +113,8 @@ class CustomSection(models.Model):
 class InsuranceTax(models.Model):
     '''税金・保険料'''
     vehicle_tax = models.PositiveIntegerField('自動車税', null=True)
-    income_tax = models.PositiveIntegerField('所得税', null=True)
+    acquisition_tax = models.PositiveIntegerField('得得税', null=True)
+    weight_tax = models.PositiveIntegerField('重量税', null=True)
     vehicle_liability_insurance = models.PositiveIntegerField('自賠責保険料', null=True)
     optional_insurance = models.PositiveIntegerField('任意保険料', null=True)
     stamp_duty = models.PositiveIntegerField('印紙税', null=True)
@@ -130,7 +131,7 @@ class ConsumptionTax(models.Model):
     delivery_fee = models.PositiveIntegerField('納車費用', null=True)
     audit_fee = models.PositiveIntegerField('査定料', null=True)
     remaining_vehicle_tax = models.PositiveIntegerField('自動車税未経過相当額', null=True)
-    remiaining_liability = models.PositiveIntegerField('自賠責未経過相当額', null=True)
+    remaining_liability = models.PositiveIntegerField('自賠責未経過相当額', null=True)
     recycle_management_fee = models.PositiveIntegerField('リサイクル資金管理料金', null=True)
     extras = models.OneToOneField(
         CustomSection,
