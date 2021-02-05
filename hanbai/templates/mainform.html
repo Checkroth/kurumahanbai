@@ -216,9 +216,15 @@
 										<tr>{{ consumption_tax_form.remaining_liability|as_columns|safe }}</tr>
 										<tr>{{ consumption_tax_form.recycle_management_fee|as_columns|safe }}</tr>
 									</form>
+									{% for form in consumption_tax_extras_form %}
 									<form>
-										<!-- consumption tax extras, etc. -->
+										<tr>
+											<td>{{ form.value_type }}</td>
+											<td>{{ form.field_name }}</td>
+											<td>{{ form.type_agnostic_value }}</td>
+										</tr>
 									</form>
+									{% endfor %}
 								</table>
 							</li>
 						</ul>

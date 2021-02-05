@@ -18,6 +18,11 @@ def edit_order(request, order_id):
     repo = api.get_order_repository()
     order = repo.get_order_or_404(order_id)
     # TODO:: A single form for "extra section"s that handles the input type etc.
+    consumption_tax_extras_form = forms.CustomFieldsFormSet.build_formset(
+        order.itemization.consumption_tax,
+        order.itemization.consumption_tax.extras.fields.all(),
+    )
+
     ctx = {
         'order': order,
         'vehicle_info_form': forms.VehicleInfoForm(instance=order.vehicle_info),
@@ -27,6 +32,7 @@ def edit_order(request, order_id):
         'itemization_form': forms.ItemizationForm(instance=order.itemization),
         'insurance_tax_form': forms.InsuranceTaxForm(instance=order.itemization.insurance_tax),
         'consumption_tax_form': forms.ConsumptionTaxForm(instance=order.itemization.consumption_tax),
+        'consumption_tax_extras_form': consumption_tax_extras_form,
         'tax_exemption_form': forms.TaxExemptionForm(instance=order.itemization.consumption_tax_exemption),
     }
     return render(request, 'mainform.html', ctx)

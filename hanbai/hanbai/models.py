@@ -3,7 +3,7 @@ from django.db import models
 
 
 class ExtraField(models.Model):
-    class FieldTypeChoices(models.IntegerChoices):
+    class FieldTypeChoices(models.TextChoices):
         STRING = 1
         INTEGER = 2
 
@@ -11,6 +11,11 @@ class ExtraField(models.Model):
     value_type = models.IntegerField(choices=FieldTypeChoices.choices)
     string_value = models.CharField(max_length=255, null=True, blank=True)
     integer_value = models.IntegerField(null=True)
+    section = models.ForeignKey(
+        'CustomSection',
+        on_delete=models.CASCADE,
+        related_name='fields',
+    )
 
     @property
     def value(self):
@@ -100,14 +105,14 @@ class RegisteredHolderInfo(models.Model):
     address = models.TextField('住所', blank=True)
 
 
-class CustomSectionFields(models.Model):
-    field = models.ForeignKey(ExtraField, on_delete=models.PROTECT)
-    section = models.ForeignKey('CustomSection', on_delete=models.PROTECT)
-
-
 class CustomSection(models.Model):
+    '''
+    Parent-agnostic collection of extra fields
+    Another field holds a 1 to 1 with this section.
+    This section holds a 1 to many with custom fields.
+    Ultimately, it is a 1-to-many to extra fields from the parent model, but only one foreign key field.
+    '''
     section_name = models.CharField(max_length=255, blank=True)
-    fields = models.ManyToManyField(ExtraField, through=CustomSectionFields)
 
 
 class InsuranceTax(models.Model):
