@@ -53,7 +53,7 @@ ul.main-row {
 }
 
 #mainform ul.form-container {
-    flex-direction: column;
+    flex-flow: column wrap;
 }
 
 #mainform .col {
@@ -89,7 +89,6 @@ ul.main-row {
     text-orientation: upright;
     padding: 1em .5em;
     letter-spacing: 1em;
-    float: left;
 }
 
 #mainform li.basic-table {
@@ -120,4 +119,16 @@ div.box.total {
 
 .box-label {
     text-align: center;
+}
+
+div.table  {
+    display:table;
+}
+
+form.tr, div.tr {
+    display:table-row;
+}
+
+span.td {
+    display:table-cell;
 }

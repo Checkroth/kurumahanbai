@@ -23,12 +23,12 @@ class CustomFieldsFormSet(forms.BaseFormSet):
         super().__init__(*args, initial=initial, **kwargs)
 
     @classmethod
-    def build_formset(cls, section, initial_instances):
+    def build_formset(cls, section, initial_instances, extra=1):
         Factory = forms.formset_factory(
             CustomFieldForm,
             formset=cls,
             can_delete=True,
-            extra=1,
+            extra=extra,
         )
         return Factory(section=section, initial_instances=initial_instances)
 
