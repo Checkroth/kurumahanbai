@@ -13,7 +13,8 @@
 					</li>
 					<li class="table-header">車輌明細</li>
 					<li class="basic-table">
-						<form class="table">
+						<form class="table" action="{% url 'set_vehicle_info' %}" method="POST">
+              {% csrf_token %}
 								<div class="tr">
 									{{ vehicle_info_form.car_name|as_columns|safe }}
 								</div>
@@ -59,6 +60,7 @@
 					<li class="table-header">下取車</li>
 					<li class="basic-table">
 						<form class="table">
+              {% csrf_token %}
 							<div class="tr">
 								{{ previous_vehicle_form.car_name|as_columns|safe }}
 							</div>
@@ -103,6 +105,7 @@
 							<li class="vertical-label">ご購入者</li>
 							<li class="basic-table">
 								<form>
+                  {% csrf_token %}
 									<div class="table">
 										<div class="tr">{{ customer_info_form.name_furi|as_columns|safe }}</div>
 										<div class="tr">{{ customer_info_form.name|as_columns|safe }}</div>
@@ -171,14 +174,47 @@
 		<li>
 			<ul class="main-row bottom-half">
 				<ul class="bottom-col-1 col thirds">
-					<li class="basic-table">
+					<li class="basic-table blue-table">
             <form class="table">
+              {% csrf_token %}
               <div class="tr">{{ itemization_form.vehicle_price|as_columns|safe }}</div>
               <div class="tr">{{ itemization_form.special_discount|as_columns|safe }}</div>
             </form>
             <div class="table">
               <div class="tr">
                 <span class="td">車輌本体課税象額</span>
+                <span class="td">TODO円</span>
+              </div>
+              <div class="tr">
+                <span class="td">付属品価額</span>
+                <span class="td">TODO円</span>
+              </div>
+							<div class="tr">
+								<span class="td">特別仕様</span>
+								<span class="td">TODO円</span>
+							</div>
+							<div class="tr">
+								<span class="td">車輌販売価額</span>
+								<span class="td">TODO円</span>
+							</div>
+							<div class="tr">
+								<span class="td">税金・保険料</span>
+								<span class="td">TODO円</span>
+							</div>
+							<div class="tr">
+								<span class="td">販売諸費用（課税)</span>
+								<span class="td">TODO円</span>
+							</div>
+							<div class="tr">
+								<span class="td">販売諸費用（非課税)</span>
+								<span class="td">TODO円</span>
+							</div>
+							<div class="tr">
+								<span class="td">消費税合計</span>
+								<span class="td">TODO円</span>
+							</div>
+              <div class="tr">
+                <span class="td">合計</span>
                 <span class="td">TODO円</span>
               </div>
             </div>
@@ -190,6 +226,7 @@
 							<li class="vertical-label">税金・保険量</li>
 							<li class="basic-table">
 								<form class="table">
+                  {% csrf_token %}
 									<div class="tr">{{ insurance_tax_form.vehicle_tax|as_columns|safe }}</div>
 									<div class="tr">{{ insurance_tax_form.acquisition_tax|as_columns|safe }}</div>
 									<div class="tr">{{ insurance_tax_form.weight_tax|as_columns|safe }}</div>
@@ -207,6 +244,7 @@
 							<li class="vertical-label">消費税課税対象</li>
 							<li class="basic-table">
 								<form class="table">
+                  {% csrf_token %}
 									<div class="tr">手続代行費用</div>
 									<div class="tr">{{ consumption_tax_form.inspection_registration_delivery_tax|as_columns|safe }}</div>
 									<div class="tr">{{ consumption_tax_form.proof_of_storage_space|as_columns|safe }}</div>
@@ -219,6 +257,7 @@
 								</form>
 								{% for form in consumption_tax_extras_form %}
 								<form class="tr">
+                  {% csrf_token %}
 									<span class="td">{{ form.value_type }}</span>
 									<span class="td">{{ form.field_name }}</span>
 									<span class="td">{{ form.type_agnostic_value }}</span>
@@ -234,6 +273,7 @@
 							<li class="vertical-label">非課税</li>
 							<li class="basic-table">
 								<form class="table">
+                  {% csrf_token %}
 									<div class="tr">預り法定費用</div>
 									<div class="tr">{{ tax_exemption_form.inspection_registration_delivery_exemption|as_columns|safe }}</div>
 									<div class="tr">{{ tax_exemption_form.proof_of_storage_exemption|as_columns|safe }}</div>
@@ -254,6 +294,7 @@
                 <div class="table">
                   {% for form in accessories_form %}
                   <form class="tr">
+                    {% csrf_token %}
                     <span class="td">{{ form.value_type }}</span>
                     <span class="td">{{ form.field_name }}</span>
                     <span class="td">{{ form.type_agnostic_value }}</span>
@@ -272,6 +313,7 @@
                 <div class="table">
                   {% for form in custom_specs_form %}
                   <form class="tr">
+                    {% csrf_token %}
                     <span class="td">{{ form.value_type }}</span>
                     <span class="td">{{ form.field_name }}</span>
                     <span class="td">{{ form.type_agnostic_value }}</span>
@@ -279,6 +321,7 @@
                   {% endfor %}
 									<tr class="total-row">
 										<span class="td">合計</span><span class="td">35150</span>
+                  </tr>
 								</div>
               </li>
             </ul>
@@ -295,5 +338,15 @@
 
 {% block extra_footer %}
 <script>
+ const inputs = document.getElementsByTagName('input');
+ function blurHandler() {
+   fetch(this.form.action, {
+     method: this.form.method,
+     body: new FormData(this.form)
+   });
+ }
+ for (let input of inputs) {
+   input.onblur = blurHandler;
+ }
 </script>
 {% endblock %}

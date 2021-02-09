@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 
 from . import api
 from . import forms
@@ -36,9 +37,9 @@ def edit_order(request, order_id):
     ctx = {
         'order': order,
         'vehicle_info_form': forms.VehicleInfoForm(instance=order.vehicle_info),
-        'previous_vehicle_form': forms.PreviousVehicleInfoForm(instance=order.previous_vehicle_info),
+        'previous_vehicle_form': forms.PreviousVehicleInfoForm(instance=order.previous_vehicle_info, prefix='previous'),
         'customer_info_form': forms.CustomerInfoForm(instance=order.customer_info),
-        'registered_holder_info_form': forms.RegisteredHolderInfoForm(instance=order.registered_holder_info),
+        'registered_holder_info_form': forms.RegisteredHolderInfoForm(instance=order.registered_holder_info, prefix='register'),
         'itemization_form': forms.ItemizationForm(instance=order.itemization),
         'insurance_tax_form': forms.InsuranceTaxForm(instance=order.itemization.insurance_tax),
         'consumption_tax_form': forms.ConsumptionTaxForm(instance=order.itemization.consumption_tax),
@@ -60,3 +61,8 @@ def order_list(request):
     repo = api.get_order_repository()
     orders = repo.get_all_orders()
     return render(request, 'order_list.html', {'orders': orders})
+
+
+def set_vehicle_info(request):
+    print('form submitted!')
+    return JsonResponse({})

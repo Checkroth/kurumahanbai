@@ -30,7 +30,7 @@ class CustomFieldsFormSet(forms.BaseFormSet):
             can_delete=True,
             extra=extra,
         )
-        return Factory(section=section, initial_instances=initial_instances)
+        return Factory(section=section, initial_instances=initial_instances, prefix=str(section))
 
 
 class CustomFieldForm(forms.ModelForm):
