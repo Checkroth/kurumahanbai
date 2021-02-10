@@ -3,6 +3,12 @@ from django import forms
 from . import models
 
 
+class SelfCleaningForm(forms.ModelForm):
+    @property
+    def form_class(self):
+        raise NotImplementedError()
+
+
 class CustomFieldsFormSet(forms.BaseFormSet):
     def __init__(self, *args, section, initial_instances, **kwargs):
         self.section = section
@@ -33,7 +39,8 @@ class CustomFieldsFormSet(forms.BaseFormSet):
         return Factory(section=section, initial_instances=initial_instances, prefix=str(section))
 
 
-class CustomFieldForm(forms.ModelForm):
+class CustomFieldForm(SelfCleaningForm):
+    form_class = 'custom_field'
     type_agnostic_value = forms.CharField(max_length=255)
 
     def clean(self):
@@ -61,7 +68,7 @@ class CustomFieldForm(forms.ModelForm):
         model = models.ExtraField
 
 
-class BasicVehicleInfoForm(forms.ModelForm):
+class BasicVehicleInfoForm(SelfCleaningForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['inspection_year'].widget.attrs['class'] = 'double'
@@ -74,6 +81,8 @@ class BasicVehicleInfoForm(forms.ModelForm):
 
 
 class VehicleInfoForm(BasicVehicleInfoForm):
+    form_class = 'vehicle_info'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['inspection_year'].widget.attrs['class'] = 'double'
@@ -85,6 +94,8 @@ class VehicleInfoForm(BasicVehicleInfoForm):
 
 
 class PreviousVehicleInfoForm(BasicVehicleInfoForm):
+    form_class = 'previous_vehicle_info'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['inspection_year'].widget.attrs['class'] = 'double'
@@ -95,7 +106,9 @@ class PreviousVehicleInfoForm(BasicVehicleInfoForm):
         model = models.PreviousVehicleInfo
 
 
-class CustomerInfoForm(forms.ModelForm):
+class CustomerInfoForm(SelfCleaningForm):
+    form_class = 'customer_info'
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['contact_phone'].widget.attrs['class'] = 'double'
@@ -105,31 +118,41 @@ class CustomerInfoForm(forms.ModelForm):
         model = models.CustomerInfo
 
 
-class RegisteredHolderInfoForm(forms.ModelForm):
+class RegisteredHolderInfoForm(SelfCleaningForm):
+    form_class = 'registered_holder_info'
+
     class Meta:
         fields = '__all__'
         model = models.RegisteredHolderInfo
 
 
-class ItemizationForm(forms.ModelForm):
+class ItemizationForm(SelfCleaningForm):
+    form_class = 'itemization'
+
     class Meta:
         fields = '__all__'
         model = models.Itemization
 
 
-class InsuranceTaxForm(forms.ModelForm):
+class InsuranceTaxForm(SelfCleaningForm):
+    form_class = 'insurance_tax'
+
     class Meta:
         fields = '__all__'
         model = models.InsuranceTax
 
 
-class ConsumptionTaxForm(forms.ModelForm):
+class ConsumptionTaxForm(SelfCleaningForm):
+    form_class = 'consumption_tax'
+
     class Meta:
         fields = '__all__'
         model = models.ConsumptionTax
 
 
-class TaxExemptionForm(forms.ModelForm):
+class TaxExemptionForm(SelfCleaningForm):
+    form_class = 'tax_exemption'
+
     class Meta:
         fields = '__all__'
         model = models.TaxExemption

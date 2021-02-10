@@ -1,8 +1,12 @@
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from http import HTTPStatus
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, Http404
+from django.views.decorators.http import require_http_methods
 
 from . import api
 from . import forms
+from .constants import FORM_MAPPING
 
 
 def top(request):
@@ -61,6 +65,21 @@ def order_list(request):
     repo = api.get_order_repository()
     orders = repo.get_all_orders()
     return render(request, 'order_list.html', {'orders': orders})
+
+
+@require_http_methods(['POST'])
+def set_form_generic(request, form_class, instance_id):
+    form = FORM_MAPPING.get(form_class)
+    if not form:
+        raise Http404('フォーム種類は存在しません。')
+    instance = get_object_or_404(form._meta.model, pk=instance_id)
+    form = form(request.POST, instance=instance)
+    if form.is_valid():
+        form.save()
+    else:
+        return JsonResponse(form.errors, status=HTTPStatus.BAD_REQUEST)
+
+    return JsonResponse({})
 
 
 def set_vehicle_info(request):

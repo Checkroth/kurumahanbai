@@ -13,7 +13,7 @@
 					</li>
 					<li class="table-header">車輌明細</li>
 					<li class="basic-table">
-						<form class="table" action="{% url 'set_vehicle_info' %}" method="POST">
+						<form class="table" action="{% url 'set_form_generic' form_class=vehicle_info_form.form_class instance_id=vehicle_info_form.instance.id%}" method="POST">
               {% csrf_token %}
 								<div class="tr">
 									{{ vehicle_info_form.car_name|as_columns|safe }}
@@ -104,7 +104,7 @@
 						<ul>
 							<li class="vertical-label">ご購入者</li>
 							<li class="basic-table">
-								<form>
+								<form action="{% url 'set_form_generic' form_class=customer_info_form.form_class instance_id=customer_info_form.instance.id %}">
                   {% csrf_token %}
 									<div class="table">
 										<div class="tr">{{ customer_info_form.name_furi|as_columns|safe }}</div>
@@ -339,11 +339,19 @@
 {% block extra_footer %}
 <script>
  const inputs = document.getElementsByTagName('input');
- function blurHandler() {
-   fetch(this.form.action, {
+ async function blurHandler() {
+   const response = await fetch(this.form.action, {
      method: this.form.method,
      body: new FormData(this.form)
    });
+   if (response.status === 200) {
+     console.log('success');
+   } else if (response.status === 400) {
+     console.log('implementation bug');
+     console.log(response.json());
+   } else {
+     console.log('connection error');
+   }
  }
  for (let input of inputs) {
    input.onblur = blurHandler;
