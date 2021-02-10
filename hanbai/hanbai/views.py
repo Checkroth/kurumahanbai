@@ -82,6 +82,16 @@ def set_form_generic(request, form_class, instance_id):
     return JsonResponse({})
 
 
+@require_http_methods(['POST'])
+def process_existing_extras_form(request, section_id):
+    pass
+
+
+@require_http_methods(['POST'])
+def process_new_extras_form(request, section_id):
+    pass
+
+
 def set_vehicle_info(request):
     print('form submitted!')
     return JsonResponse({})
