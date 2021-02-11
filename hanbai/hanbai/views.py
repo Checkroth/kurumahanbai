@@ -100,7 +100,7 @@ def process_new_extras_form(request, section_id):
     section = repo.get_section_or_404(section_id)
     form_data = request.POST.copy()
     prefix = form_data.pop('form_prefix')
-    form_data[f'{prefix}-section'] = section
+    form_data[f'{prefix}-sssection'] = section
     form = forms.CustomFieldForm(form_data, section=section, prefix=prefix)
 
     if form.is_valid():

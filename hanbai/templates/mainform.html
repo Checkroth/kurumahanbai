@@ -3,7 +3,7 @@
 
 {% block content %}
 <div id="mainform">
-	<ul class="form-container">
+    <ul class="form-container">
     <li>
       <ul class="messages">
         <li class="success" style="display: none;">最新入力を保存しました。</li>
@@ -18,7 +18,7 @@
 					</li>
 					<li class="table-header">車輌明細</li>
 					<li class="basic-table">
-						<form class="table" method="POST" action="{% url 'set_form_generic' form_class=vehicle_info_form.form_class instance_id=vehicle_info_form.instance.id%}">
+						<form class="table" method="POST" action="{% url 'set_form_generic' form_class=vehicle_info_form.form_class instance_id=vehicle_info_form.instance.id %}">
               {% csrf_token %}
 								<div class="tr">
 									{{ vehicle_info_form.car_name|as_columns|safe }}
@@ -181,7 +181,7 @@
 			<ul class="main-row bottom-half">
 				<ul class="bottom-col-1 col thirds">
 					<li class="basic-table blue-table">
-            <form class="table" method="POST" action="{% url 'set_form_generic' form_class=itemization_form.form_class instance_id=itemization_form.instance.id">
+            <form class="table" method="POST" action="{% url 'set_form_generic' form_class=itemization_form.form_class instance_id=itemization_form.instance.id %}">
               {% csrf_token %}
               <div class="tr">{{ itemization_form.vehicle_price|as_columns|safe }}</div>
               <div class="tr">{{ itemization_form.special_discount|as_columns|safe }}</div>

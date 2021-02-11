@@ -9,10 +9,10 @@ class SelfCleaningForm(forms.ModelForm):
         raise NotImplementedError()
 
 
-class CustomFieldsFormSet(forms.BaseModelFormSet):
+# class CustomFieldsFormSet(forms.BaseModelFormSet):
+class CustomFieldsFormSet(forms.BaseFormSet):
     @classmethod
     def build_formset(cls, section, initial_instances, extra=1):
-        '''
         initial = []
         for instance in initial_instances:
             initial_values = {'section': section, 'instance': instance}
@@ -26,7 +26,6 @@ class CustomFieldsFormSet(forms.BaseModelFormSet):
             elif instance.value_type == models.ExtraField.FieldTypeChoices.INTEGER:
                 initial_values['type_agnostisc_value'] = str(instance.int_value)
             initial.append(initial_values)
-        '''
         Factory = forms.formset_factory(
             CustomFieldForm,
             formset=cls,
@@ -35,17 +34,16 @@ class CustomFieldsFormSet(forms.BaseModelFormSet):
         )
 
         return Factory(
-            # initial=initial,
+            initial=initial,
             prefix=type(section).__name__,
             form_kwargs={'section': section},
-            queryset=initial_instances,
+            # queryset=initial_instances,
         )
 
 
 class CustomFieldForm(SelfCleaningForm):
     form_class = 'custom_field'
     type_agnostic_value = forms.CharField(max_length=255, required=False)
-
     def __init__(self, *args, section, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['section'].initial = section
@@ -136,7 +134,12 @@ class ItemizationForm(SelfCleaningForm):
     form_class = 'itemization'
 
     class Meta:
-        fields = '__all__'
+        fields = [
+            'vehicle_price',
+            'special_discount',
+            'down_payment',
+            'trade_in_price',
+        ]
         model = models.Itemization
 
 
