@@ -7,8 +7,8 @@ class ExtraField(models.Model):
         STRING = 1
         INTEGER = 2
 
-    field_name = models.CharField(max_length=255, null=False, blank=False)
-    value_type = models.IntegerField(choices=FieldTypeChoices.choices)
+    field_name = models.CharField(max_length=255, null=True, blank=True)
+    value_type = models.IntegerField(choices=FieldTypeChoices.choices, default=FieldTypeChoices.STRING.value)
     string_value = models.CharField(max_length=255, null=True, blank=True)
     integer_value = models.IntegerField(null=True, blank=True)
     section = models.ForeignKey(

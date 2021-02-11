@@ -83,13 +83,31 @@ def set_form_generic(request, form_class, instance_id):
 
 
 @require_http_methods(['POST'])
-def process_existing_extras_form(request, section_id):
-    pass
+def process_existing_extras_form(request, instance_id):
+    repo = api.get_extras_repo()
+    existing_field = repo.get_field_or_404(instance_id)
+    form = forms.CustomFieldForm(request.POST, instance=existing_field)
+    if form.is_valid():
+        form.save()
+    else:
+        return JsonResponse(form.errors, status=HTTPStatus.BAD_REQUEST)
+    return JsonResponse({})
 
 
 @require_http_methods(['POST'])
 def process_new_extras_form(request, section_id):
-    pass
+    repo = api.get_extras_repo()
+    section = repo.get_section_or_404(section_id)
+    form_data = request.POST.copy()
+    prefix = form_data.pop('form_prefix')
+    form_data[f'{prefix}-section'] = section
+    form = forms.CustomFieldForm(form_data, section=section, prefix=prefix)
+
+    if form.is_valid():
+        form.save()
+    else:
+        return JsonResponse(form.errors, status=HTTPStatus.BAD_REQUEST)
+    return JsonResponse({})
 
 
 def set_vehicle_info(request):

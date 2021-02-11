@@ -12,7 +12,7 @@ def as_columns(form_field):
 
 @register.filter
 def extras_form_action(form):
-    if form.instance:
-        return reverse('process_existing_extras_form', kwargs={'section_id': form.instance.section.id})
+    if form.instance.id:
+        return reverse('process_existing_extras_form', kwargs={'instance_id': form.instance.id})
     else:
-        return reverse('process_new_extras_form')
+        return reverse('process_new_extras_form', kwargs={'section_id': form.fields['section'].initial.id})

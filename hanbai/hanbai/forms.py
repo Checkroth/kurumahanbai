@@ -9,57 +9,63 @@ class SelfCleaningForm(forms.ModelForm):
         raise NotImplementedError()
 
 
-class CustomFieldsFormSet(forms.BaseFormSet):
-    def __init__(self, *args, section, initial_instances, **kwargs):
-        self.section = section
+class CustomFieldsFormSet(forms.BaseModelFormSet):
+    @classmethod
+    def build_formset(cls, section, initial_instances, extra=1):
+        '''
         initial = []
         for instance in initial_instances:
-            initial_values = {'section': section}
+            initial_values = {'section': section, 'instance': instance}
             for field in ['field_name', 'value_type', 'string_value', 'integer_value']:
                 field_value = getattr(instance, field)
                 if field_value:
                     initial_values[field] = field_value
 
-            if instance.field_type == models.ExtraField.FieldTypeChoices.STRING:
+            if instance.value_type == models.ExtraField.FieldTypeChoices.STRING:
                 initial_values['type_agnostisc_value'] = instance.string_value
-            elif instance.field_type == models.ExtraField.FieldTypeChoices.INTEGER:
+            elif instance.value_type == models.ExtraField.FieldTypeChoices.INTEGER:
                 initial_values['type_agnostisc_value'] = str(instance.int_value)
             initial.append(initial_values)
-
-        super().__init__(*args, initial=initial, **kwargs)
-
-    @classmethod
-    def build_formset(cls, section, initial_instances, extra=1):
+        '''
         Factory = forms.formset_factory(
             CustomFieldForm,
             formset=cls,
             can_delete=True,
             extra=extra,
         )
-        return Factory(section=section, initial_instances=initial_instances, prefix=str(section))
+
+        return Factory(
+            # initial=initial,
+            prefix=type(section).__name__,
+            form_kwargs={'section': section},
+            queryset=initial_instances,
+        )
 
 
 class CustomFieldForm(SelfCleaningForm):
     form_class = 'custom_field'
-    type_agnostic_value = forms.CharField(max_length=255)
+    type_agnostic_value = forms.CharField(max_length=255, required=False)
+
+    def __init__(self, *args, section, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['section'].initial = section
+        self.fields['value_type'].required = False
 
     def clean(self):
         cleaned_data = super().clean()
-        agnostic_value = cleaned_data['type_agnostic_value']
+        agnostic_value = cleaned_data.get('type_agnostic_value')
+        if not agnostic_value:
+            return cleaned_data
 
-        if cleaned_data['value_type'] == models.ExtraField.FieldTypeChoices.STRING:
-            cleaned_data['string_value'] = agnostic_value
+        try:
+            int_value = int(agnostic_value)
+            cleaned_data['integer_value'] = int_value
+            cleaned_data['string_value'] = None
+            cleaned_data['value_type'] = models.ExtraField.FieldTypeChoices.INTEGER
+        except TypeError:
             cleaned_data['integer_value'] = None
-
-        elif cleaned_data['value_type'] == models.ExtraField.FieldTypeChoices.INTEGER:
-            try:
-                int_value = int(agnostic_value)
-                cleaned_data['integer_value'] = int_value
-                cleaned_data['string_value'] = None
-            except TypeError:
-                raise forms.ValidationError('数値を入れてください')
-        else:
-            raise forms.ValidationError('文字又は数値を選んでください')
+            cleaned_data['string_value'] = agnostic_value
+            cleaned_data['value_type'] = models.ExtraField.FieldTypeChoices.STRING
 
         return cleaned_data
 

@@ -26,6 +26,25 @@ nav li {
     background: red;
 }
 
+ul.messages {
+    flex-direction: column;
+    justify-content: center;
+}
+
+ul.messages li {
+    justify-content: center;
+    text-align: center;
+    margin-bottom: -1.5em;
+}
+
+ul.messages li.success {
+    color: green;
+}
+
+ul.messages li.error {
+    color: red;
+}
+
 #mainform ul {
     display: flex;
     list-style-type: none;

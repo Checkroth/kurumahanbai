@@ -70,3 +70,15 @@ class OrderRepository:
             consumption_tax=consumption_tax,
             consumption_tax_exemption=consumption_tax_exemption,
         )
+
+
+class ExtrasRespository:
+    def __init__(self, extra_field_model, extra_section_model):
+        self.extra_field_model = extra_field_model
+        self.extra_section_model = extra_section_model
+
+    def get_section_or_404(self, section_id):
+        return get_object_or_404(self.extra_section_model, pk=section_id)
+
+    def get_field_or_404(self, field_id):
+        return get_object_or_404(self.extra_field_model, pk=field_id)

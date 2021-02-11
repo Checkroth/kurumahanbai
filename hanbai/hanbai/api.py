@@ -15,3 +15,10 @@ def get_order_repository():
         models.ConsumptionTax,
         models.TaxExemption,
     )
+
+
+def get_extras_repo():
+    return repositories.ExtrasRespository(
+        models.ExtraField,
+        models.CustomSection,
+    )
