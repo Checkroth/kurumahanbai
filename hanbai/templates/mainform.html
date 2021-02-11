@@ -354,8 +354,9 @@
      } else {
        fadeTarget.style.display = 'none';
        fadeTarget.style.opacity = 1;
+       clearInterval(fadeEffect);
      }
-   }, 300);
+   }, 200);
  }
 
  async function blurHandler() {
