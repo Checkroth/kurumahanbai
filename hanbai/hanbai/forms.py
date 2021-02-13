@@ -144,7 +144,7 @@ class ConsumptionTaxForm(SelfCleaningForm):
     form_class = 'consumption_tax'
 
     class Meta:
-        fields = '__all__'
+        exclude = ['extras']
         model = models.ConsumptionTax
 
 

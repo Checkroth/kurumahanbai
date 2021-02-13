@@ -111,16 +111,19 @@ def process_new_extras_form(request, section_id):
     prefix = form_data.pop('form_prefix')[0]
     form_data[f'{prefix}-section'] = section
     form = forms.CustomFieldForm(form_data, section=section, prefix=prefix)
-    if form.is_valid() and (form.cleaned_data['field_name'] or
-                            form.cleaned_data['type_agnostic_value']):
+    update_action = None
+
+    if form.is_valid():
+        if form.cleaned_data['field_name'] or form.cleaned_data['type_agnostic_value']:
             form.save()
+            update_action = reverse(
+                'process_existing_extras_form',
+                kwargs={'instance_id': form.instance.id},
+            )
+
     else:
         return JsonResponse(form.errors, status=HTTPStatus.BAD_REQUEST)
 
-    update_action = reverse(
-        'process_existing_extras_form',
-        kwargs={'instance_id': form.instance.id},
-    )
     return JsonResponse({'new_action': update_action})
 
 
