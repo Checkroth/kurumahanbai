@@ -86,7 +86,15 @@ def set_form_generic(request, form_class, instance_id):
 def process_existing_extras_form(request, instance_id):
     repo = api.get_extras_repo()
     existing_field = repo.get_field_or_404(instance_id)
-    form = forms.CustomFieldForm(request.POST, instance=existing_field)
+    form_data = request.POST.copy()
+    prefix = form_data.pop('form_prefix')[0]
+    form_data[f'{prefix}-section'] = existing_field.section
+    form = forms.CustomFieldForm(
+        form_data,
+        instance=existing_field,
+        section=existing_field.section,
+        prefix=prefix,
+    )
     if form.is_valid():
         form.save()
     else:
@@ -100,9 +108,8 @@ def process_new_extras_form(request, section_id):
     section = repo.get_section_or_404(section_id)
     form_data = request.POST.copy()
     prefix = form_data.pop('form_prefix')
-    form_data[f'{prefix}-sssection'] = section
+    form_data[f'{prefix}-section'] = section
     form = forms.CustomFieldForm(form_data, section=section, prefix=prefix)
-
     if form.is_valid():
         form.save()
     else:

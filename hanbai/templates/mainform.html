@@ -263,14 +263,15 @@
 								</form>
 								{% for form in consumption_tax_extras_form %}
 								<form class="tr" method="POST" action="{{ form|extras_form_action }}">
-                  {% csrf_token %}
-                  <input type="hidden" name="form_prefix" value="{{ form.prefix }}">
+									{% csrf_token %}
+									<input type="hidden" name="form_prefix" value="{{ form.prefix }}">
 									<span class="td">{{ form.field_name }}</span>
 									<span class="td">{{ form.type_agnostic_value }}</span>
 								</form>
 								{% endfor %}
 								<tr class="total-row">
 									<span class="td">合計</span><span class="td">35150</span>
+								</tr>
 							</li>
 						</ul>
 					</li>

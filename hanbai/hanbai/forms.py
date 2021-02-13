@@ -9,35 +9,22 @@ class SelfCleaningForm(forms.ModelForm):
         raise NotImplementedError()
 
 
-# class CustomFieldsFormSet(forms.BaseModelFormSet):
-class CustomFieldsFormSet(forms.BaseFormSet):
+class CustomFieldsFormSet(forms.BaseModelFormSet):
     @classmethod
     def build_formset(cls, section, initial_instances, extra=1):
-        initial = []
-        for instance in initial_instances:
-            initial_values = {'section': section, 'instance': instance}
-            for field in ['field_name', 'value_type', 'string_value', 'integer_value']:
-                field_value = getattr(instance, field)
-                if field_value:
-                    initial_values[field] = field_value
-
-            if instance.value_type == models.ExtraField.FieldTypeChoices.STRING:
-                initial_values['type_agnostisc_value'] = instance.string_value
-            elif instance.value_type == models.ExtraField.FieldTypeChoices.INTEGER:
-                initial_values['type_agnostisc_value'] = str(instance.int_value)
-            initial.append(initial_values)
-        Factory = forms.formset_factory(
-            CustomFieldForm,
+        Factory = forms.modelformset_factory(
+            models.ExtraField,
             formset=cls,
             can_delete=True,
+            form=CustomFieldForm,
             extra=extra,
+            fields='__all__',
         )
 
         return Factory(
-            initial=initial,
             prefix=type(section).__name__,
             form_kwargs={'section': section},
-            # queryset=initial_instances,
+            queryset=initial_instances,
         )
 
 
