@@ -107,11 +107,12 @@ def process_new_extras_form(request, section_id):
     repo = api.get_extras_repo()
     section = repo.get_section_or_404(section_id)
     form_data = request.POST.copy()
-    prefix = form_data.pop('form_prefix')
+    prefix = form_data.pop('form_prefix')[0]
     form_data[f'{prefix}-section'] = section
     form = forms.CustomFieldForm(form_data, section=section, prefix=prefix)
-    if form.is_valid():
-        form.save()
+    if form.is_valid() and (form.cleaned_data['field_name'] or
+                            form.cleaned_data['type_agnostic_value']):
+            form.save()
     else:
         return JsonResponse(form.errors, status=HTTPStatus.BAD_REQUEST)
     return JsonResponse({})
