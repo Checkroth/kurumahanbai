@@ -3,6 +3,7 @@ from http import HTTPStatus
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, Http404
 from django.views.decorators.http import require_http_methods
+from django.urls import reverse
 
 from . import api
 from . import forms
@@ -115,7 +116,12 @@ def process_new_extras_form(request, section_id):
             form.save()
     else:
         return JsonResponse(form.errors, status=HTTPStatus.BAD_REQUEST)
-    return JsonResponse({})
+
+    update_action = reverse(
+        'process_existing_extras_form',
+        kwargs={'instance_id': form.instance.id},
+    )
+    return JsonResponse({'new_action': update_action})
 
 
 def set_vehicle_info(request):

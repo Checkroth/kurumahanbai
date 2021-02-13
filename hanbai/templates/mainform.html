@@ -366,7 +366,12 @@
        method: this.form.method,
        body: new FormData(this.form)
      });
+
      if (response.status === 200) {
+       data = await response.json();
+       if (data.new_action) {
+         this.form.action = data.new_action;
+       }
        console.log('success');
        fadeOutEffect('success');
      } else if (response.status === 400) {
