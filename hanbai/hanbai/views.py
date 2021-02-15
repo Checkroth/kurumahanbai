@@ -1,12 +1,14 @@
 from http import HTTPStatus
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, FileResponse
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
+from django.utils import timezone
 
 from . import api
 from . import forms
+from .reports import OrderReport
 from .constants import FORM_MAPPING
 
 
@@ -127,6 +129,9 @@ def process_new_extras_form(request, section_id):
     return JsonResponse({'new_action': update_action})
 
 
-def set_vehicle_info(request):
-    print('form submitted!')
-    return JsonResponse({})
+def download_report(request, order_id):
+    repo = api.get_order_repository()
+    order = repo.get_order_or_404(order_id)
+    report = OrderReport(order)
+    attachment = report.make_report()
+    return FileResponse(attachment, as_attachment=True, filename=f'{order.id}-{timezone.now()}')

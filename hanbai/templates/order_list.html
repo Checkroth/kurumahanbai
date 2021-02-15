@@ -24,7 +24,7 @@
 			<td>{{ order.started|date:"Y/m/d H:i" }}</td>
 			<td><a href="{% url 'edit_order' order_id=order.id %}">編集</a></td>
 			<td><a href="">コピー</a></td>
-			<td><a href="">ダウンロード</a></td>
+			<td><a href="{% url 'download_report' order_id=order.id %}">ダウンロード</a></td>
 		</tr>
 		{% endfor %}
 	</tbody>

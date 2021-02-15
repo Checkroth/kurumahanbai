@@ -24,8 +24,8 @@ urlpatterns = [
     path('create_new_order/', views.create_new_order, name='create_new_order'),
     path('edit/<int:order_id>/', views.edit_order, name='edit_order'),
     path('order_list/', views.order_list, name='order_list'),
-    path('set_vehicle_info/', views.set_vehicle_info, name='set_vehicle_info'),
     path('set_form_generic/<str:form_class>/<int:instance_id>', views.set_form_generic, name='set_form_generic'),
     path('process_new_extras_form/<int:section_id>', views.process_new_extras_form, name='process_new_extras_form'),
     path('process_extras_form/<int:instance_id>', views.process_existing_extras_form, name='process_existing_extras_form'),
+    path('download/<int:order_id>', views.download_report, name='download_report'),
 ]
