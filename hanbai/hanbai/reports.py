@@ -1,4 +1,5 @@
 from io import BytesIO
+from typing import Optional
 import textwrap
 from xml.sax.saxutils import escape
 
@@ -84,22 +85,40 @@ class OrderReport:
     def header(self):
         return Paragraph('注文書', self.styles['Heading1'])
 
+    def _text_to_lines(self, text: Optional[str]):
+        lines = text.splitlines('\r\n') if text else ['']
+        lines = [textwrap.wrap(line, width=self.textarea_width) or [''] for line in lines]s
+        lines = [escape(subline) for line in lines for subline in line]
+        return '<br />'.join(lines)
+
+    def _cell_from_fieldname(self, model):
+        def get_field(field):
+            return Paragraph(model._meta.get_field(field).verbose_nae, self.normal_style)
+
+        return get_field
+
+    def _cell_from_fieldval(self, model):
+        def get_field(field):
+            field_value = getattr(model, field)
+            converted = str(field) if field or field == 0 else ''
+            return Paragraph(escape(converted), tyle=self.normal_style)
+
+        return get_field
+
     def vehicle_info(self):
         info = self.order.vehicle_info
-        extra_equipment_lines = info.extra_equipment.split('\r\n') if info.extra_equipment else ['']
-        extra_equipment_lines = [textwrap.wrap(line, width=self.textarea_width) or [''] for line in extra_equipment_lines]
-        extra_equipment_lines = [escape(subline) for line in extra_equipment_lines for subline in line]
-        extra_equipment = '<br />'.join(extra_equipment_lines)
+        extra_equipment = self._text_to_lines(info.extra_equipment)s
+        cell_from_fieldname = self._cell_from_fieldname(info)
         table = Table([
             # Col 1: Labels
             [Paragraph('車輌明細', self.styles['Heading4']),
-             Paragraph(info._meta.get_field('car_name').verbose_name, self.normal_style),
+             cell_from_fieldname('car_name'),
              Paragraph('年式', self.normal_style),
-             Paragraph(info._meta.get_field('car_model').verbose_name, self.normal_style),
-             Paragraph(info._meta.get_field('distance_traveled').verbose_name, self.normal_style),
-             Paragraph(info._meta.get_field('engine_displacement').verbose_name, self.normal_style),
-             Paragraph(info._meta.get_field('expected_delivery_year').verbose_name, self.normal_style),
-             Paragraph(info._meta.get_field('extra_equipment').verbose_name, self.normal_style)],
+             cell_from_fieldname('car_model'),
+             cell_from_fieldname('distance_traveled'),
+             cell_from_fieldname('engine_displacement'),
+             cell_from_fieldname('expected_delivery_year'),
+             cell_from_fieldname('extra_equipment')],
             # Col 2: C1 Values
             [Paragraph('', self.styles['Heading1']),  # Continuation of heading
              Paragraph(info.car_name, self.normal_style),
@@ -112,11 +131,11 @@ class OrderReport:
             # Col 3: Labels
             [Paragraph('', self.styles['Heading1']),  # Continuation of heading
              Paragraph('', self.normal_style),  # Continuation of car name
-             Paragraph(info._meta.get_field('color').verbose_name, self.normal_style),
-             Paragraph(info._meta.get_field('model_number').verbose_name, self.normal_style),
-             Paragraph(info._meta.get_field('registration_number').verbose_name, self.normal_style),
+             cell_from_fieldname('color'),
+             cell_from_fieldname('model_number'),
+             cell_from_fieldname('registration_number'),
              Paragraph('車検', self.normal_style),
-             Paragraph(info._meta.get_field('doors').verbose_name, self.normal_style),
+             cell_from_fieldname('doors'),
              Paragraph('', self.normal_style)],  # Continuation of extra equipment
             # Col 4: C3 Values
             [Paragraph('', self.styles['Heading1']),  # Continuation of heading
@@ -131,7 +150,36 @@ class OrderReport:
         return table
 
     def previous_vehicle_info(self):
-        table = Table([])
+        info = self.order.previous_vehicle_info
+        owner = self._text_to_lines(info.owner)
+        cell_from_fieldname = self._cell_from_fieldname(info)
+        cell_from_fieldval = self._cell_from_fieldval(info)
+        table = Table([
+            [Paragraph('下取車', self.styles['Heading4']),
+             cell_from_fieldname('car_name'),
+             cell_from_fieldname('model_number'),
+             cell_from_fieldname('registration_number'),
+             cell_from_fieldname('owner'),
+             cell_from_fieldname('model_specification')],
+            [Paragraph('', self.styles['Heading1']),  # Continuation of heading
+             cell_from_fieldval('car_name'),
+             cell_from_fieldval('model_number'),
+             cell_from_fieldval('registration_number'),
+             cell_from_fieldval('owner'),
+             cell_from_fieldval('model_specification')],
+            [Paragraph('', self.styles['Heading1']),
+             Paragraph('', self.normal_style),
+             Paragraph('年式', self.normal_style),
+             Paragraph('車検', self.normal_style),
+             cell_from_fieldname('car_model'),
+             cell_from_fieldname('classification')],
+            [Paragraph('', self.styles['Heading1']),
+             Paragraph('', self.normal_style),
+             Paragraph(f'{info.model_year}年{info.model_month}月', self.normal_style),
+             Paragraph(f'{info.inspection_year}年{info.inspection_month}月', self.normal_style),
+             cell_from_fieldval('car_model'),
+             cell_from_fieldval('classification')]
+        ])
         return table
 
     def company_info(self):
