@@ -47,9 +47,9 @@ class OrderReport:
 
         # Report instance instantiation
         self.basic_spacer = Spacer(1, 12)
-        self.target = BytesIO()
+        self.doc_target = BytesIO()
         self.doc = SimpleDocTemplate(
-            self.target,
+            self.doc_target,
             pagesize=A5,
             rightMargin=MARGIN // 2,
             leftMargin=MARGIN // 2,
@@ -86,14 +86,14 @@ class OrderReport:
         return Paragraph('注文書', self.styles['Heading1'])
 
     def _text_to_lines(self, text: Optional[str]):
-        lines = text.splitlines('\r\n') if text else ['']
-        lines = [textwrap.wrap(line, width=self.textarea_width) or [''] for line in lines]s
+        lines = text.splitlines() if text else ['']
+        lines = [textwrap.wrap(line, width=self.textarea_width) or [''] for line in lines]
         lines = [escape(subline) for line in lines for subline in line]
         return '<br />'.join(lines)
 
     def _cell_from_fieldname(self, model):
         def get_field(field):
-            return Paragraph(model._meta.get_field(field).verbose_nae, self.normal_style)
+            return Paragraph(model._meta.get_field(field).verbose_name, self.normal_style)
 
         return get_field
 
@@ -101,14 +101,15 @@ class OrderReport:
         def get_field(field):
             field_value = getattr(model, field)
             converted = str(field) if field or field == 0 else ''
-            return Paragraph(escape(converted), tyle=self.normal_style)
+            return Paragraph(escape(converted), self.normal_style)
 
         return get_field
 
     def vehicle_info(self):
         info = self.order.vehicle_info
-        extra_equipment = self._text_to_lines(info.extra_equipment)s
+        extra_equipment = self._text_to_lines(info.extra_equipment)
         cell_from_fieldname = self._cell_from_fieldname(info)
+        cell_from_fieldval = self._cell_from_fieldval(info)
         table = Table([
             # Col 1: Labels
             [Paragraph('車輌明細', self.styles['Heading4']),
@@ -121,13 +122,13 @@ class OrderReport:
              cell_from_fieldname('extra_equipment')],
             # Col 2: C1 Values
             [Paragraph('', self.styles['Heading1']),  # Continuation of heading
-             Paragraph(info.car_name, self.normal_style),
+             cell_from_fieldval('car_name'),
              Paragraph(f'{info.model_year}年{info.model_month}月', self.normal_style),
-             Paragraph(info.car_model, self.normal_style),
-             Paragraph(info.distance_traveled, self.normal_style),
-             Paragraph(info.engine_displacement, self.normal_style),
+             cell_from_fieldval('car_model'),
+             cell_from_fieldval('distance_traveled'),
+             cell_from_fieldval('engine_displacement'),
              Paragraph(f'{info.expected_delivery_year}年', self.normal_style),
-             Paragraph(extra_equipment, self.normal_style)],
+             cell_from_fieldval('extra_equipment')],
             # Col 3: Labels
             [Paragraph('', self.styles['Heading1']),  # Continuation of heading
              Paragraph('', self.normal_style),  # Continuation of car name
@@ -140,11 +141,11 @@ class OrderReport:
             # Col 4: C3 Values
             [Paragraph('', self.styles['Heading1']),  # Continuation of heading
              Paragraph('', self.normal_style),  # Continuation of car name
-             Paragraph(info.color, self.normal_style),
-             Paragraph(info.model_number, self.normal_style),
-             Paragraph(info.registration_number, self.normal_style),
+             cell_from_fieldval('color'),
+             cell_from_fieldval('model_number'),
+             cell_from_fieldval('registration_number'),
              Paragraph(f'{info.inspection_year}年{info.inspection_month}月', self.normal_style),
-             Paragraph(info.doors, self.normal_style),
+             cell_from_fieldval('doors'),
              Paragraph('', self.normal_style)],  # Continuation of extra equipment
         ])
         return table
@@ -183,13 +184,13 @@ class OrderReport:
         return table
 
     def company_info(self):
-        table = Table([])
+        table = Table([[Paragraph('test', self.normal_style)]])
         return table
 
     def customer_info(self):
-        table = Table([])
+        table = Table([[Paragraph('test', self.normal_style)]])
         return table
 
     def registered_holder_info(self):
-        table = Table([])
+        table = Table([[Paragraph('test', self.normal_style)]])
         return table
