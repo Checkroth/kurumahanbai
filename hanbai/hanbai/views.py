@@ -134,4 +134,4 @@ def download_report(request, order_id):
     order = repo.get_order_or_404(order_id)
     report = OrderReport(order)
     attachment = report.make_report()
-    return FileResponse(attachment, as_attachment=True, filename=f'{order.id}-{timezone.now()}')
+    return FileResponse(attachment, as_attachment=True, filename=f'{order.id}-{timezone.now().date()}.pdf')

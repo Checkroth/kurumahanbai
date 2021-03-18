@@ -45,7 +45,9 @@ class OrderReport:
             style.fontName = self.font_name
         self.normal_style = self.styles['Normal']
         self.normal_style.fontSize = 5
+        self.normal_style.leading = 6
         self.textarea_width = 12  # TODO:: Set actual width
+        self.vertical_style = self.normal_style
         self.styles['Heading4'].fontName = self.bold_font_name
         self.basic_tablestyle = [
             ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
@@ -79,6 +81,11 @@ class OrderReport:
         return self.doc_target
 
     def upper_table(self):
+        '''
+        注文書                [Seller Address(Constant)
+        [Vehicle Info]        [Customer Info]
+        [Prev. Vehicle Info]  [Holder Info]
+        '''
         header_cell = self.header()
         vehicle_info_cell = self.vehicle_info()
         previous_vehicle_info_cell = self.previous_vehicle_info()
@@ -86,13 +93,6 @@ class OrderReport:
         company_info_cell = self.company_info()
         customer_info_cell = self.customer_info()
         registered_holder_info_cell = self.registered_holder_info()
-        # table = Table([
-            # [header_cell, company_info_cell],
-            # [self.basic_spacer, self.basic_spacer],
-            # [vehicle_info_cell, customer_info_cell],
-            # [self.basic_spacer, self.basic_spacer],
-            # [previous_vehicle_info_cell, registered_holder_info_cell],
-        # ])
         '''
         [HEADER_CELL]
         [VEHICLE_INFO_CELL]
@@ -111,14 +111,41 @@ class OrderReport:
         style = deepcopy(ZERO_PAD)
         # TODO:: Main table should not have borders. They are just here for initial styling.
         style += [
+            ('ALIGN', (0, 0), (0, 0), 'CENTER'),
             ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
             ('BOX', (0, 0), (-1, -1), 1.5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (1, 0), (1, -1), 10),
         ]
         table.setStyle(TableStyle(style))
         return table
 
+    def middle_table(self):
+        '''
+        [お支払い現金合計] = [車輌販売価額] + [諸費用合計] + [消費税合計] - [下取車価額]
+        '''
+        table = Table([
+        ])
+        return table
+
+    def bottom_table(self):
+        '''
+        [Itemization Totals]     [TAX/INSURANCE]           [ACCESSORIES]
+        [...Itemization    ]     [CONSUMPTION/PROCESS]     [ACCESSORIES]
+        [...Itemization    ]     [TAX EXEMPTION]           [CUSTOM SPECS]
+        '''
+        table = Table([
+        ])
+        return table
+
     def header(self):
-        return Paragraph('注文書', self.styles['Heading1'])
+        style = ParagraphStyle(
+            name='CenterHeading1',
+            parent=self.styles['Heading1'],
+            alignment=enums.TA_CENTER,
+            leading=10,
+        )
+        return Paragraph('注文書', style)
 
     def _text_to_lines(self, text: Optional[str], width=None):
         if not width:
@@ -130,13 +157,22 @@ class OrderReport:
 
     def _cell_from_fieldname(self, model):
         def get_field(field):
-            return Paragraph(model._meta.get_field(field).verbose_name, self.normal_style)
+            # Global special cases
+            if field == 'postal_code':
+                verbose_name = '〒'
+            else:
+                verbose_name = model._meta.get_field(field).verbose_name
+
+            return Paragraph(verbose_name, self.normal_style)
 
         return get_field
 
     def _cell_from_fieldval(self, model):
         def get_field(field):
             field_value = getattr(model, field)
+            # Global special cases
+            if 'phone' in field:
+                field_value = f'Tel　{field_value}' if field_value else 'Tel'
             converted = str(field_value) if field_value or field_value == 0 else ''
             return Paragraph(escape(converted), self.normal_style)
 
@@ -206,9 +242,54 @@ class OrderReport:
         return Paragraph(info, self.normal_style)
 
     def customer_info(self):
-        table = Table([[Paragraph('test', self.normal_style)]])
+        info = self.order.customer_info
+        address = self._text_to_lines(info.address)
+        cell_from_fieldname = self._cell_from_fieldname(info)
+        cell_from_fieldval = self._cell_from_fieldval(info)
+        table = Table([
+            [Paragraph('<br />'.join('ご購入者'), self.vertical_style),
+             cell_from_fieldname('name_furi'), cell_from_fieldval('name_furi')],
+            ['', cell_from_fieldname('name'), cell_from_fieldval('name')],
+            ['', cell_from_fieldname('birthday'), cell_from_fieldval('birthday')],
+            ['', cell_from_fieldname('postal_code'), cell_from_fieldval('postal_code')],
+            ['', cell_from_fieldname('address'), Paragraph(address, self.normal_style)],
+            ['', cell_from_fieldname('contact_phone'), cell_from_fieldval('contact_name'), cell_from_fieldval('contact_phone')],
+        ], colWidths=[SIXTEENTH // 2, SIXTEENTH, (EIGTH * 2), EIGTH])
+        style = deepcopy(self.basic_tablestyle)
+        style += [
+            ('VALAIGN', (0, 0), (0, -1), 'MIDDLE'),
+            ('SPAN', (0, 0), (0, -1)),
+            ('SPAN', (2, 0), (3, 0)),
+            ('SPAN', (2, 1), (3, 1)),
+            ('SPAN', (2, 2), (3, 2)),
+            ('SPAN', (2, 3), (3, 3)),
+            ('SPAN', (2, 4), (3, 4)),
+        ]
+        table.setStyle(TableStyle(style))
         return table
 
     def registered_holder_info(self):
+        info = self.order.registered_holder_info
+        address = self._text_to_lines(info.address)
+        cell_from_fieldname = self._cell_from_fieldname(info)
+        cell_from_fieldval = self._cell_from_fieldval(info)
         table = Table([[Paragraph('test', self.normal_style)]])
+        table = Table([
+            [Paragraph('<br />'.join('登録名義人'), self.vertical_style),
+             cell_from_fieldname('name_furi'), cell_from_fieldval('name_furi')],
+            ['', cell_from_fieldname('name'), cell_from_fieldval('name')],
+            ['', cell_from_fieldname('postal_code'), cell_from_fieldval('postal_code'), cell_from_fieldval('phone')],
+            ['', cell_from_fieldname('address'), Paragraph(address, self.normal_style)],
+        ], colWidths = [SIXTEENTH // 2, SIXTEENTH, (EIGTH * 2), EIGTH])
+        style = deepcopy(self.basic_tablestyle)
+        style += [
+            ('VALIGN', (0, 0), (0, -1), 'MIDDLE'),
+            ('SPAN', (0, 0), (0, -1)),
+            ('SPAN', (2, 0), (3, 0)),
+            ('SPAN', (2, 1), (3, 1)),
+            ('SPAN', (2, 2), (3, 2)),
+            ('SPAN', (2, 3), (2, 3)),
+            ('SPAN', (2, 4), (2, 4)),
+        ]
+        table.setStyle(TableStyle(style))
         return table
