@@ -51,7 +51,7 @@ class OrderReport:
         self.styles['Heading4'].fontName = self.bold_font_name
         self.basic_tablestyle = [
             ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-            ('BOX', (0, 0), (-1, -1), 1.5, colors.black),
+            ('BOX', (0, 0), (-1, -1), .5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('TOPPADDING', (0, 0), (-1, -1), 2),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
@@ -75,6 +75,7 @@ class OrderReport:
         # Adding to the table will be done here.
         main_content = []
         main_content.append(self.upper_table())
+        main_content.append(self.middle_table())
 
         self.doc.build(main_content)
         self.doc_target.seek(0)
@@ -113,7 +114,7 @@ class OrderReport:
         style += [
             ('ALIGN', (0, 0), (0, 0), 'CENTER'),
             ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-            ('BOX', (0, 0), (-1, -1), 1.5, colors.black),
+            ('BOX', (0, 0), (-1, -1), .5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('LEFTPADDING', (1, 0), (1, -1), 10),
         ]
@@ -124,8 +125,42 @@ class OrderReport:
         '''
         [お支払い現金合計] = [車輌販売価額] + [諸費用合計] + [消費税合計] - [下取車価額]
         '''
+        sale_price = 2137880
+        expenses = 831200
+        consumption_tax = 0
+        previous_vehicle_cost = 0
+        total = sale_price + expenses
+        style = self.normal_style
+
         table = Table([
+            [Paragraph('お支払い現金合計', style),
+             Paragraph('=', style),
+             Paragraph('車輌販売価額', style),
+             Paragraph('+', style),
+             Paragraph('諸費用合計', style),
+             Paragraph('+', style),
+             Paragraph('消費税合計', style),
+             Paragraph('-', style),
+             Paragraph('下取車価額', style)],
+            [Paragraph(f'{total:n}', style),
+             Paragraph('=', style),
+             Paragraph(f'{sale_price:n}', style),
+             Paragraph('+', style),
+             Paragraph(f'{expenses:n}', style),
+             Paragraph('+', style),
+             Paragraph(f'{consumption_tax:n}', style),
+             Paragraph('-', style),
+             Paragraph(f'{previous_vehicle_cost:n}', style)]
         ])
+        tstyle = deepcopy(ZERO_PAD)
+        tstyle += [
+            ('ALIGN', (0, 0), (0, 0), 'CENTER'),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+            ('BOX', (0, 0), (-1, -1), .5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (1, 0), (1, -1), 10),
+        ]
+        table.setStyle(tstyle)
         return table
 
     def bottom_table(self):
