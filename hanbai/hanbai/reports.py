@@ -46,6 +46,8 @@ class OrderReport:
         self.normal_style = self.styles['Normal']
         self.normal_style.fontSize = 5
         self.normal_style.leading = 6
+        self.center_style = deepcopy(self.styles['Normal'])
+        self.center_style.alignment = enums.TA_CENTER
         self.textarea_width = 12  # TODO:: Set actual width
         self.vertical_style = self.normal_style
         self.styles['Heading4'].fontName = self.bold_font_name
@@ -56,6 +58,9 @@ class OrderReport:
             ('TOPPADDING', (0, 0), (-1, -1), 2),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
         ]
+        self.totals_style = deepcopy(self.styles['Normal'])
+        self.totals_style.fontSize = 7
+        self.totals_style.alignment = enums.TA_CENTER
 
         # Report instance instantiation
         self.basic_spacer = Spacer(1, 12)
@@ -75,7 +80,10 @@ class OrderReport:
         # Adding to the table will be done here.
         main_content = []
         main_content.append(self.upper_table())
+        main_content.append(self.basic_spacer)
         main_content.append(self.middle_table())
+        main_content.append(self.basic_spacer)
+        main_content.append(self.bottom_table())
 
         self.doc.build(main_content)
         self.doc_target.seek(0)
@@ -130,7 +138,7 @@ class OrderReport:
         consumption_tax = 0
         previous_vehicle_cost = 0
         total = sale_price + expenses
-        style = self.normal_style
+        style = self.totals_style
 
         table = Table([
             [Paragraph('お支払い現金合計', style),
@@ -151,14 +159,18 @@ class OrderReport:
              Paragraph(f'{consumption_tax:n}', style),
              Paragraph('-', style),
              Paragraph(f'{previous_vehicle_cost:n}', style)]
-        ])
+        ], rowHeights=(15, 15))
         tstyle = deepcopy(ZERO_PAD)
         tstyle += [
-            ('ALIGN', (0, 0), (0, 0), 'CENTER'),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
             ('BOX', (0, 0), (-1, -1), .5, colors.black),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('LEFTPADDING', (1, 0), (1, -1), 10),
+            ('SPAN', (1, 0), (1, 1)),
+            ('SPAN', (3, 0), (3, 1)),
+            ('SPAN', (5, 0), (5, 1)),
+            ('SPAN', (7, 0), (7, 1)),
         ]
         table.setStyle(tstyle)
         return table
@@ -169,8 +181,36 @@ class OrderReport:
         [...Itemization    ]     [CONSUMPTION/PROCESS]     [ACCESSORIES]
         [...Itemization    ]     [TAX EXEMPTION]           [CUSTOM SPECS]
         '''
-        table = Table([
-        ])
+        itemization_totals_cell = self.itemization_totals()
+        trade_in_totals_cell = self.itemization_totals()
+        payment_details_cell = self.payment_details()
+        notes_cell = self.notes()
+
+        tax_insurance_cell = self.tax_insurance()
+        consumption_process_cell = self.consumption_process()
+        tax_exemption_cell = self.tax_exemption()
+
+        accessories_cell = self.accessories()
+        custom_specs_cell = self.custom_specs()
+        table = Table([[
+            [itemization_totals_cell,
+             self.basic_spacer,
+             trade_in_totals_cell,
+             self.basic_spacer,
+             payment_details_cell,
+             self.basic_spacer, notes_cell],
+            [tax_insurance_cell, consumption_process_cell, tax_exemption_cell],
+            [accessories_cell, custom_specs_cell],
+        ]])
+        style = deepcopy(ZERO_PAD)
+        style += [
+            ('ALIGN', (0, 0), (0, 0), 'CENTER'),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+            ('BOX', (0, 0), (-1, -1), .5, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (1, 0), (1, -1), 10),
+        ]
+        table.setStyle(TableStyle(style))
         return table
 
     def header(self):
@@ -327,4 +367,51 @@ class OrderReport:
             ('SPAN', (2, 4), (2, 4)),
         ]
         table.setStyle(TableStyle(style))
+        return table
+
+    def itemization_totals(self):
+        info = self.order.itemization
+        cell_from_fieldname = self._cell_from_fieldname(info)
+        cell_from_fieldval = self._cell_from_fieldval(info)
+        table = Table([
+            [cell_from_fieldname('vehicle_price'), cell_from_fieldval('vehicle_price')],
+            [cell_from_fieldname('special_discount'), cell_from_fieldval('special_discount')],
+            [Paragraph('車両本体課税対象額', self.normal_style), cell_from_fieldval('subtotal')],
+            [Paragraph('付属品価格', self.normal_style), cell_from_fieldval('accessories_total')],
+            [Paragraph('特別仕様価格', self.normal_style), cell_from_fieldval('custom_specs_total')],
+        ])
+        style = deepcopy(self.basic_tablestyle)        
+        table.setStyle(style)
+        return table
+
+    def trade_in_totals(self):
+        table = Table([[Paragraph('trade in total', self.normal_style)]])
+        return table
+
+    def payment_details(self):
+        table = Table([[Paragraph('payment', self.normal_style)]])
+        return table
+
+    def notes(self):
+        table = Table([[Paragraph('notes', self.normal_style)]])
+        return table
+
+    def tax_insurance(self):
+        table = Table([[Paragraph('tax/insurance', self.normal_style)]])
+        return table
+
+    def consumption_process(self):
+        table = Table([[Paragraph('consumption/process', self.normal_style)]])
+        return table
+
+    def tax_exemption(self):
+        table = Table([[Paragraph('tax exemption', self.normal_style)]])
+        return table
+
+    def accessories(self):
+        table = Table([[Paragraph('accessories', self.normal_style)]])
+        return table
+
+    def custom_specs(self):
+        table = Table([[Paragraph('custom specs', self.normal_style)]])
         return table

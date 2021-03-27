@@ -35,6 +35,8 @@ class CustomFieldForm(SelfCleaningForm):
         super().__init__(*args, **kwargs)
         self.fields['section'].initial = section
         self.fields['value_type'].required = False
+        self.fields['value_type'].choices = [models.ExtraField.FieldTypeChoices.INTEGER,
+                                             models.ExtraField.FieldTypeChoices.STRING]
         self.fields['type_agnostic_value'].initial = (self.instance.string_value or
                                                       self.instance.integer_value)
 
@@ -48,11 +50,11 @@ class CustomFieldForm(SelfCleaningForm):
             int_value = int(agnostic_value)
             cleaned_data['integer_value'] = int_value
             cleaned_data['string_value'] = None
-            # cleaned_data['value_type'] = models.ExtraField.FieldTypeChoices.INTEGER
+            cleaned_data['value_type'] = int(models.ExtraField.FieldTypeChoices.INTEGER)
         except (TypeError, ValueError):
             cleaned_data['integer_value'] = None
             cleaned_data['string_value'] = agnostic_value
-            # cleaned_data['value_type'] = models.ExtraField.FieldTypeChoices.STRING
+            cleaned_data['value_type'] = models.ExtraField.FieldTypeChoices.STRING.name
 
         return cleaned_data
 

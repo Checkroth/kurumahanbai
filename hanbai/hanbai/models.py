@@ -3,7 +3,7 @@ from django.db import models
 
 
 class ExtraField(models.Model):
-    class FieldTypeChoices(models.TextChoices):
+    class FieldTypeChoices(models.IntegerChoices):
         STRING = 1
         INTEGER = 2
 
@@ -114,6 +114,12 @@ class CustomSection(models.Model):
     '''
     section_name = models.CharField(max_length=255, blank=True)
 
+    def integer_aggregate(self):
+        return sum(self.fields.filter(
+            value_type=ExtraField.FieldTypeChoices.INTEGER,
+            integer_value__isnull=False,
+        ).values_list('integer_value', flat=True))
+
 
 class InsuranceTax(models.Model):
     '''税金・保険料'''
@@ -198,6 +204,23 @@ class Itemization(models.Model):
     down_payment = models.PositiveIntegerField('頭金', null=True, blank=True)  # 15
     trade_in_price = models.PositiveIntegerField('下取者価格', null=True, blank=True)  # 16
     # 残金 is aggregate of 14, 15, 16
+
+    @property
+    def subtotal(self):
+        '''4: 車両本体課税対象額'''
+        vehicle_price = self.vehicle_price or 0
+        special_discount = self.special_discount or 0
+        return (vehicle_price - special_discount) or None
+
+    @property
+    def accessories_total(self):
+        '''5: 付属品価格'''
+        return self.accessories.integer_aggregate() or None
+
+    @property
+    def custom_specs_total(self):
+        '''6: 特別仕様価格'''
+        return self.custom_specs.integer_aggregate() or None
 
 
 class PaymentDetails(models.Model):
