@@ -386,8 +386,9 @@
    }
  }
 
- for (let input of document.querySelectorAll('input, textarea')) {
+ for (let input of document.querySelectorAll('input, select, textarea')) {
    input.onblur = blurHandler;
+   input.onchage = blurHandler;
  }
 </script>
 {% endblock %}

@@ -198,8 +198,8 @@ class Itemization(models.Model):
     '''
     Number comments correspond to numbers on original sheet
     '''
-    vehicle_price = models.PositiveIntegerField('車輌本体価格', null=True, blank=True)  # 1
-    special_discount = models.PositiveIntegerField('特別値引き', null=True, blank=True)  # 2
+    vehicle_price = models.PositiveIntegerField('車輌本体価格 (1)', null=True, blank=True)  # 1
+    special_discount = models.PositiveIntegerField('特別値引き (2)', null=True, blank=True)  # 2
     # 3 not required
     # 4 is aggregate of 1, 2, 3
     accessories = models.OneToOneField(  # 5
@@ -234,7 +234,7 @@ class Itemization(models.Model):
     )
 
     # 13 is aggregate of 4, 5, 6, 7, 8, 11, 16
-    # 14 is aggregate of all
+    # 14 is aggregate of 9, 10, 11, 12
     down_payment = models.PositiveIntegerField('頭金', null=True, blank=True)  # 15
     trade_in_price = models.PositiveIntegerField('下取者価格', null=True, blank=True)  # 16
     # 残金 is aggregate of 14, 15, 16
@@ -279,6 +279,20 @@ class Itemization(models.Model):
         '''12: 消費税課税対象（非課税)'''
         return self.consumption_tax_exemption.total or None
 
+    @property
+    def all_tax_total(self):
+        '''13: 消費税合計 (9 + 11 - 16)'''
+        # TODO:: what is 16?
+        return self.all_total
+
+    @property
+    def all_total(self):
+        '''14 合計 ( 9 + 10 + 11 + 12)'''
+        return sum(filter(None, [self.total_sale_price,
+                                 self.insurance_tax_total,
+                                 self.consumption_tax_total,
+                                 self.tax_exemption_total]))
+    
 
 class PaymentDetails(models.Model):
     '''支払い明細'''
@@ -320,6 +334,11 @@ class Order(models.Model):
     itemization = models.OneToOneField(
         Itemization,
         help_text='お支払い金額詳細',
+        on_delete=models.PROTECT,
+    )
+    payment_details = models.OneToOneField(
+        PaymentDetails,
+        help_text='お支払い明細',
         on_delete=models.PROTECT,
     )
     notes = models.TextField('備考', blank=True)

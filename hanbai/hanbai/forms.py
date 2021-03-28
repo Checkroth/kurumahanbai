@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 
 from . import models
 
@@ -107,6 +108,8 @@ class CustomerInfoForm(SelfCleaningForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['contact_phone'].widget.attrs['class'] = 'double'
+        today = timezone.now()
+        self.fields['birthday'].widget = forms.SelectDateWidget(years=reversed(range(1900, today.year)))
 
     class Meta:
         fields = '__all__'

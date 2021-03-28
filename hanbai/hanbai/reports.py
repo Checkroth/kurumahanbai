@@ -121,8 +121,6 @@ class OrderReport:
         # TODO:: Main table should not have borders. They are just here for initial styling.
         style += [
             ('ALIGN', (0, 0), (0, 0), 'CENTER'),
-            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-            ('BOX', (0, 0), (-1, -1), .5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('LEFTPADDING', (1, 0), (1, -1), 10),
         ]
@@ -182,7 +180,7 @@ class OrderReport:
         [...Itemization    ]     [TAX EXEMPTION]           [CUSTOM SPECS]
         '''
         itemization_totals_cell = self.itemization_totals()
-        trade_in_totals_cell = self.itemization_totals()
+        trade_in_totals_cell = self.trade_in_totals()
         payment_details_cell = self.payment_details()
         notes_cell = self.notes()
 
@@ -205,8 +203,6 @@ class OrderReport:
         style = deepcopy(ZERO_PAD)
         style += [
             ('ALIGN', (0, 0), (0, 0), 'CENTER'),
-            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-            ('BOX', (0, 0), (-1, -1), .5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('LEFTPADDING', (1, 0), (1, -1), 10),
         ]
@@ -376,29 +372,54 @@ class OrderReport:
         table = Table([
             [cell_from_fieldname('vehicle_price'), cell_from_fieldval('vehicle_price')],
             [cell_from_fieldname('special_discount'), cell_from_fieldval('special_discount')],
-            [Paragraph('車両本体課税対象額', self.normal_style), cell_from_fieldval('subtotal')],
-            [Paragraph('付属品価格', self.normal_style), cell_from_fieldval('accessories_total')],
-            [Paragraph('特別仕様価格', self.normal_style), cell_from_fieldval('custom_specs_total')],
-            [Paragraph('車両販売価格', self.normal_style), cell_from_fieldval('total_sale_price')],
-            [Paragraph('税金・保険料', self.normal_style), cell_from_fieldval('insurance_tax_total')],
-            [Paragraph('消費税課税対象（課税)', self.normal_style), cell_from_fieldval('consumption_tax_total')],
-            [Paragraph('消費税課税対象（非課税)', self.normal_style), cell_from_fieldval('tax_exemption_total')],
+            [Paragraph('車両本体課税対象額 (1 + 2 + 3)', self.normal_style), cell_from_fieldval('subtotal')],
+            [Paragraph('付属品価格 (5)', self.normal_style), cell_from_fieldval('accessories_total')],
+            [Paragraph('特別仕様価格 (6)', self.normal_style), cell_from_fieldval('custom_specs_total')],
+            [Paragraph('車両販売価格 (4 + 5 + 6+ 7+ 8)', self.normal_style), cell_from_fieldval('total_sale_price')],
+            [Paragraph('税金・保険料 (10)', self.normal_style), cell_from_fieldval('insurance_tax_total')],
+            [Paragraph('消費税課税対象（課税) (11)', self.normal_style), cell_from_fieldval('consumption_tax_total')],
+            [Paragraph('消費税課税対象（非課税) (12)', self.normal_style), cell_from_fieldval('tax_exemption_total')],
+            [Paragraph('消費税合計 (13)', self.normal_style), cell_from_fieldval('all_tax_total')],
+            [Paragraph('合計 (14)', self.normal_style), cell_from_fieldval('all_total')],
         ])
         style = deepcopy(self.basic_tablestyle)        
         table.setStyle(style)
         return table
 
     def trade_in_totals(self):
-        table = Table([[Paragraph('trade in total', self.normal_style)]])
+        info = self.order.itemization
+        cell_from_fieldname = self._cell_from_fieldname(info)
+        cell_from_fieldval = self._cell_from_fieldval(info)
+        table = Table([
+            [cell_from_fieldname('down_payment'), cell_from_fieldval('down_payment')],
+            [cell_from_fieldname('trade_in_price'), cell_from_fieldval('trade_in_price')],
+        ])
+        style = deepcopy(self.basic_tablestyle)        
+        table.setStyle(style)
         return table
 
     def payment_details(self):
-        table = Table([[Paragraph('payment', self.normal_style)]])
+        info = self.order.payment_details
+        cell_from_fieldname = self._cell_from_fieldname(info)
+        cell_from_fieldval = self._cell_from_fieldval(info)
+        table = Table([
+            [cell_from_fieldname('installment_count'), cell_from_fieldval('installment_count')],
+            [cell_from_fieldname('initial_installment_price'), cell_from_fieldval('initial_installment_price')],
+            [cell_from_fieldname('second_and_on_installment_price'), cell_from_fieldval('second_and_on_installment_price')],
+            [cell_from_fieldname('bonus_amount'), cell_from_fieldval('bonus_amount')],
+            [cell_from_fieldname('bonus_count'), cell_from_fieldval('bonus_count')],
+            [cell_from_fieldname('credit_card_company'), cell_from_fieldval('credit_card_company')],
+        ])
+        style = deepcopy(self.basic_tablestyle)        
+        table.setStyle(style)
         return table
 
     def notes(self):
-        table = Table([[Paragraph('notes', self.normal_style)]])
-        return table
+        notes = self._text_to_lines(self.order.notes, 48)
+        return Table([
+            [Paragraph('備考', self.styles['Heading4']),
+             Paragraph(notes, self.normal_style)],
+        ])
 
     def tax_insurance(self):
         table = Table([[Paragraph('tax/insurance', self.normal_style)]])

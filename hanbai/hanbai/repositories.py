@@ -14,7 +14,8 @@ class OrderRepository:
                  custom_section_model,
                  insurance_tax_model,
                  consumption_tax_model,
-                 tax_exemption_model):
+                 tax_exemption_model,
+                 payment_details_model):
         self.order_model = order_model
         self.previous_vehicle_info_model = previous_vehicle_info_model
         self.vehicle_info_model = vehicle_info_model
@@ -25,6 +26,7 @@ class OrderRepository:
         self.insurance_tax_model = insurance_tax_model
         self.consumption_tax_model = consumption_tax_model
         self.tax_exemption_model = tax_exemption_model
+        self.payment_details_model = payment_details_model
 
     def get_in_progress_order(self):
         try:
@@ -47,6 +49,7 @@ class OrderRepository:
         vehicle_info = self.vehicle_info_model.objects.create()
         customer_info = self.customer_info_model.objects.create()
         registered_holder_info = self.registered_holder_info_model.objects.create()
+        payment_details = self.payment_details_model.objects.create()
         itemization = self.initialize_itemization()
         return self.order_model.objects.create(
             started=timezone.now(),
@@ -55,6 +58,7 @@ class OrderRepository:
             customer_info=customer_info,
             registered_holder_info=registered_holder_info,
             itemization=itemization,
+            payment_details=payment_details,
         )
 
     def initialize_itemization(self):

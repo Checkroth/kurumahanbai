@@ -14,6 +14,7 @@ def get_order_repository():
         models.InsuranceTax,
         models.ConsumptionTax,
         models.TaxExemption,
+        models.PaymentDetails,
     )
 
 
