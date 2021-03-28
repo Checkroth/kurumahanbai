@@ -379,6 +379,10 @@ class OrderReport:
             [Paragraph('車両本体課税対象額', self.normal_style), cell_from_fieldval('subtotal')],
             [Paragraph('付属品価格', self.normal_style), cell_from_fieldval('accessories_total')],
             [Paragraph('特別仕様価格', self.normal_style), cell_from_fieldval('custom_specs_total')],
+            [Paragraph('車両販売価格', self.normal_style), cell_from_fieldval('total_sale_price')],
+            [Paragraph('税金・保険料', self.normal_style), cell_from_fieldval('insurance_tax_total')],
+            [Paragraph('消費税課税対象（課税)', self.normal_style), cell_from_fieldval('consumption_tax_total')],
+            [Paragraph('消費税課税対象（非課税)', self.normal_style), cell_from_fieldval('tax_exemption_total')],
         ])
         style = deepcopy(self.basic_tablestyle)        
         table.setStyle(style)

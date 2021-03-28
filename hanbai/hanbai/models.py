@@ -130,6 +130,17 @@ class InsuranceTax(models.Model):
     optional_insurance = models.PositiveIntegerField('任意保険料', null=True, blank=True)
     stamp_duty = models.PositiveIntegerField('印紙税', null=True, blank=True)
 
+    @property
+    def total(self):
+        return sum([field or 0 for field in [
+            self.vehicle_tax,
+            self.acquisition_tax,
+            self.weight_tax,
+            self.vehicle_liability_insurance,
+            self.optional_insurance,
+            self.stamp_duty,
+        ]])
+
 
 class ConsumptionTax(models.Model):
     '''消費税課税対象'''
@@ -150,6 +161,20 @@ class ConsumptionTax(models.Model):
         on_delete=models.CASCADE,
     )
 
+    @property
+    def total(self):
+        return sum([field or 0 for field in [
+            self.inspection_registration_delivery_tax,
+            self.proof_of_storage_space,
+            self.previous_vehicle_processing_fee,
+            self.delivery_fee,
+            self.audit_fee,
+            self.remaining_vehicle_tax,
+            self.remaining_liability,
+            self.recycle_management_fee,
+            self.extras.integer_aggregate(),
+        ]])
+
 
 class TaxExemption(models.Model):
     '''非課税'''
@@ -158,6 +183,15 @@ class TaxExemption(models.Model):
     proof_of_storage_exemption = models.PositiveIntegerField('車庫証明', null=True, blank=True)
     previous_vehicle_processing_exemption = models.PositiveIntegerField('下取者手続', null=True, blank=True)
     recycle_deposit = models.PositiveIntegerField('リサイクル預託金額合計', null=True, blank=True)
+
+    @property
+    def total(self):
+        return sum([field or 0 for field in [
+            self.inspection_registration_delivery_exemption,
+            self.proof_of_storage_exemption,
+            self.previous_vehicle_processing_exemption,
+            self.recycle_deposit
+        ]])
 
 
 class Itemization(models.Model):
@@ -221,6 +255,29 @@ class Itemization(models.Model):
     def custom_specs_total(self):
         '''6: 特別仕様価格'''
         return self.custom_specs.integer_aggregate() or None
+
+    @property
+    def total_sale_price(self):
+        '''9: 車両販売価格'''
+        subtotal = self.subtotal or 0
+        accessories = self.accessories_total or 0
+        custom_specs = self.custom_specs_total or 0
+        return subtotal + accessories + custom_specs
+
+    @property
+    def insurance_tax_total(self):
+        '''10: 税金・保険料'''
+        return self.insurance_tax.total or None
+
+    @property
+    def consumption_tax_total(self):
+        '''11: 消費税課税対象（課税)'''
+        return self.consumption_tax.total or None
+
+    @property
+    def tax_exemption_total(self):
+        '''12: 消費税課税対象（非課税)'''
+        return self.consumption_tax_exemption.total or None
 
 
 class PaymentDetails(models.Model):
