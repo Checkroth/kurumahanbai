@@ -25,9 +25,11 @@ MARGIN = 75
 WIDTH = WIDTH - MARGIN
 HEIGHT = HEIGHT - MARGIN
 THIRDS = WIDTH // 3
+FOURTHS = WIDTH // 4
 SIXTHS = WIDTH // 6
-EIGTH = WIDTH // 8
-SIXTEENTH = EIGTH // 2
+EIGHTHS = WIDTH // 8
+SIXTEENTHS = EIGHTHS // 2
+THIRTY2NDS = SIXTEENTHS // 2
 
 
 class OrderReport:
@@ -48,9 +50,13 @@ class OrderReport:
         self.normal_style.leading = 6
         self.center_style = deepcopy(self.styles['Normal'])
         self.center_style.alignment = enums.TA_CENTER
+        self.right_style = deepcopy(self.normal_style)
+        self.right_style.alignment = enums.TA_RIGHT
+        
         self.textarea_width = 12  # TODO:: Set actual width
         self.vertical_style = self.normal_style
         self.styles['Heading4'].fontName = self.bold_font_name
+        self.styles['Heading4'].fontSize = 6
         self.basic_tablestyle = [
             ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
             ('BOX', (0, 0), (-1, -1), .5, colors.black),
@@ -218,6 +224,9 @@ class OrderReport:
         )
         return Paragraph('注文書', style)
 
+    def cells_from_extras(self, extras):
+        return []
+
     def _text_to_lines(self, text: Optional[str], width=None):
         if not width:
             width = self.textarea_width
@@ -226,26 +235,41 @@ class OrderReport:
         lines = [escape(subline) for line in lines for subline in line]
         return '<br />'.join(lines)
 
-    def _cell_from_fieldname(self, model):
-        def get_field(field):
+    def _cell_from_fieldname(self, model, global_style=None):
+        if global_style is None:
+            global_style = self.normal_style
+
+        def get_field(field, style=None):
+            if style is None:
+                style = global_style
             # Global special cases
             if field == 'postal_code':
                 verbose_name = '〒'
             else:
                 verbose_name = model._meta.get_field(field).verbose_name
 
-            return Paragraph(verbose_name, self.normal_style)
+            return Paragraph(verbose_name, style)
 
         return get_field
 
-    def _cell_from_fieldval(self, model):
-        def get_field(field):
+    def _cell_from_fieldval(self, model, global_style=None):
+        if global_style is None:
+            global_style = self.normal_style
+
+        def get_field(field, style=None):
+            if style is None:
+                style = global_style
             field_value = getattr(model, field)
             # Global special cases
             if 'phone' in field:
                 field_value = f'Tel　{field_value}' if field_value else 'Tel'
-            converted = str(field_value) if field_value or field_value == 0 else ''
-            return Paragraph(escape(converted), self.normal_style)
+
+            try:
+                field_value = int(field_value)
+                converted = f'{field_value:,}'
+            except (ValueError, TypeError):
+                converted = str(field_value) if field_value is not None else ''
+            return Paragraph(escape(converted), style)
 
         return get_field
 
@@ -268,7 +292,7 @@ class OrderReport:
             [cell_from_fieldname('expected_delivery_year'), Paragraph(f'{info.expected_delivery_year}年', self.normal_style),
              cell_from_fieldname('doors'), cell_from_fieldval('doors')],
             [cell_from_fieldname('extra_equipment'), Paragraph(extra_equipment, self.normal_style)],
-        ], colWidths = [SIXTEENTH , EIGTH + SIXTEENTH] * 2)
+        ], colWidths = [SIXTEENTHS , EIGHTHS + SIXTEENTHS] * 2)
         style = deepcopy(self.basic_tablestyle)
         style += [
             ('SPAN', (0, 0), (-1, 0)),
@@ -325,7 +349,7 @@ class OrderReport:
             ['', cell_from_fieldname('postal_code'), cell_from_fieldval('postal_code')],
             ['', cell_from_fieldname('address'), Paragraph(address, self.normal_style)],
             ['', cell_from_fieldname('contact_phone'), cell_from_fieldval('contact_name'), cell_from_fieldval('contact_phone')],
-        ], colWidths=[SIXTEENTH // 2, SIXTEENTH, (EIGTH * 2), EIGTH])
+        ], colWidths=[SIXTEENTHS // 2, SIXTEENTHS, (EIGHTHS * 2), EIGHTHS])
         style = deepcopy(self.basic_tablestyle)
         style += [
             ('VALAIGN', (0, 0), (0, -1), 'MIDDLE'),
@@ -351,7 +375,7 @@ class OrderReport:
             ['', cell_from_fieldname('name'), cell_from_fieldval('name')],
             ['', cell_from_fieldname('postal_code'), cell_from_fieldval('postal_code'), cell_from_fieldval('phone')],
             ['', cell_from_fieldname('address'), Paragraph(address, self.normal_style)],
-        ], colWidths = [SIXTEENTH // 2, SIXTEENTH, (EIGTH * 2), EIGTH])
+        ], colWidths = [SIXTEENTHS // 2, SIXTEENTHS, (EIGHTHS * 2), EIGHTHS])
         style = deepcopy(self.basic_tablestyle)
         style += [
             ('VALIGN', (0, 0), (0, -1), 'MIDDLE'),
@@ -368,7 +392,7 @@ class OrderReport:
     def itemization_totals(self):
         info = self.order.itemization
         cell_from_fieldname = self._cell_from_fieldname(info)
-        cell_from_fieldval = self._cell_from_fieldval(info)
+        cell_from_fieldval = self._cell_from_fieldval(info, global_style=self.right_style)
         table = Table([
             [cell_from_fieldname('vehicle_price'), cell_from_fieldval('vehicle_price')],
             [cell_from_fieldname('special_discount'), cell_from_fieldval('special_discount')],
@@ -416,20 +440,84 @@ class OrderReport:
 
     def notes(self):
         notes = self._text_to_lines(self.order.notes, 48)
-        return Table([
+        table = Table([
             [Paragraph('備考', self.styles['Heading4']),
              Paragraph(notes, self.normal_style)],
-        ])
+        ], colWidths=[SIXTEENTHS, THIRDS - SIXTEENTHS])
+        style = deepcopy(self.basic_tablestyle)
+        table.setStyle(style)
+        return table
 
     def tax_insurance(self):
-        table = Table([[Paragraph('tax/insurance', self.normal_style)]])
+        info = self.order.itemization.insurance_tax
+        cell_from_fieldname = self._cell_from_fieldname(info)
+        cell_from_fieldval = self._cell_from_fieldval(info, global_style=self.right_style)
+        table = Table([
+            [Paragraph('<br />'.join('税金・保険料'), self.vertical_style),
+             cell_from_fieldname('vehicle_tax'), cell_from_fieldval('vehicle_tax')],
+            ['', cell_from_fieldname('acquisition_tax'), cell_from_fieldval('acquisition_tax')],
+            ['', cell_from_fieldname('weight_tax'), cell_from_fieldval('weight_tax')],
+            ['', cell_from_fieldname('vehicle_liability_insurance'), cell_from_fieldval('vehicle_liability_insurance')],
+            ['', cell_from_fieldname('optional_insurance'), cell_from_fieldval('optional_insurance')],
+            ['', cell_from_fieldname('stamp_duty'), cell_from_fieldval('stamp_duty')],
+            ['', Paragraph('計', self.normal_style), Paragraph(str(info.total), self.right_style)],
+        ], colWidths=[THIRTY2NDS, (THIRDS // 2) - THIRTY2NDS, (THIRDS // 2) - THIRTY2NDS])
+        style = deepcopy(self.basic_tablestyle)
+        style += [
+            ('VALAIGN', (0, 0), (0, -1), 'MIDDLE'),
+            ('SPAN', (0, 0), (0, -1)),
+        ]
+        table.setStyle(style)
         return table
 
     def consumption_process(self):
-        table = Table([[Paragraph('consumption/process', self.normal_style)]])
+        info = self.order.itemization.consumption_tax
+        cell_from_fieldname = self._cell_from_fieldname(info)
+        cell_from_fieldval = self._cell_from_fieldval(info, global_style=self.right_style)
+        rows = [
+            [Paragraph('<br />'.join('消費税課税対象'), self.vertical_style),
+             Paragraph('<br />'.join(['手続', '代行', '費用']), self.normal_style),
+             cell_from_fieldname('inspection_registration_delivery_tax'), cell_from_fieldval('inspection_registration_delivery_tax')],
+            ['', '', cell_from_fieldname('proof_of_storage_space'), cell_from_fieldval('proof_of_storage_space')],
+            ['', '', cell_from_fieldname('previous_vehicle_processing_fee'), cell_from_fieldval('previous_vehicle_processing_fee')],
+            ['', cell_from_fieldname('delivery_fee'), '', cell_from_fieldval('delivery_fee')],
+            ['', cell_from_fieldname('audit_fee'), '', cell_from_fieldval('audit_fee')],
+            ['', cell_from_fieldname('remaining_vehicle_tax'), '', cell_from_fieldval('remaining_vehicle_tax')],
+            ['', cell_from_fieldname('remaining_liability'), '', cell_from_fieldval('remaining_liability')],
+            ['', cell_from_fieldname('recycle_management_fee'), '', cell_from_fieldval('recycle_management_fee')],
+        ] + self.cells_from_extras(info.extras)
+        table = Table(
+            rows,
+            colWidths=[
+                THIRTY2NDS,
+                THIRTY2NDS + (THIRTY2NDS // 2),
+                (THIRDS // 2) - (THIRTY2NDS * 2) - (THIRTY2NDS // 2),
+                (THIRDS // 2) - THIRTY2NDS],
+        )
+        style = deepcopy(self.basic_tablestyle)
+        lower_spans = [
+            ('SPAN', (1, rownum), (2, rownum))
+            for rownum in range(3, len(rows) + 1)
+        ]
+        style += [
+            ('VALAIGN', (0, 0), (0, -1), 'MIDDLE'),
+            ('VALAIGN', (1, 0), (1, 0), 'MIDDLE'),
+            ('SPAN', (0, 0), (0, -1)),
+            ('SPAN', (1, 0), (1, 2)),
+        ]
+        style += lower_spans
+        table.setStyle(style)
         return table
 
     def tax_exemption(self):
+        info = self.order.itemization.consumption_tax_exemption
+        cell_from_fieldname = self._cell_from_fieldname(info)
+        cell_from_fieldval = self._cell_from_fieldval(info, global_style=self.right_style)
+        rows = [
+            [Paragraph('<br />'.join('非課税'), self.vertical_style),
+             Paragraph('<br />'.join(['預り', '法定', '費用']), self.normal_style),
+             cell_from_fieldname('inspection_registration_delivery_exemption'),
+             cell_from_fieldval('inspection_registration_delivery_exemption')],
         table = Table([[Paragraph('tax exemption', self.normal_style)]])
         return table
 
