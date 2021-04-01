@@ -48,6 +48,8 @@ class OrderReport:
         self.normal_style = self.styles['Normal']
         self.normal_style.fontSize = 5
         self.normal_style.leading = 6
+        self.small_style = deepcopy(self.normal_style)
+        self.small_style.fontSize = 4
         self.center_style = deepcopy(self.styles['Normal'])
         self.center_style.alignment = enums.TA_CENTER
         self.right_style = deepcopy(self.normal_style)
@@ -57,12 +59,15 @@ class OrderReport:
         self.vertical_style = self.normal_style
         self.styles['Heading4'].fontName = self.bold_font_name
         self.styles['Heading4'].fontSize = 6
-        self.basic_tablestyle = [
-            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-            ('BOX', (0, 0), (-1, -1), .5, colors.black),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        self.floating_tablestyle = [
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('TOPPADDING', (0, 0), (-1, -1), 2),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+        ]
+        self.basic_tablestyle = deepcopy(self.floating_tablestyle)
+        self.basic_tablestyle += [
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+            ('BOX', (0, 0), (-1, -1), .5, colors.black),
         ]
         self.totals_style = deepcopy(self.styles['Normal'])
         self.totals_style.fontSize = 7
@@ -164,11 +169,9 @@ class OrderReport:
              Paragraph('-', style),
              Paragraph(f'{previous_vehicle_cost:n}', style)]
         ], rowHeights=(15, 15))
-        tstyle = deepcopy(ZERO_PAD)
+        tstyle = deepcopy(self.floating_tablestyle)
         tstyle += [
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-            ('BOX', (0, 0), (-1, -1), .5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('LEFTPADDING', (1, 0), (1, -1), 10),
             ('SPAN', (1, 0), (1, 1)),
@@ -224,8 +227,19 @@ class OrderReport:
         )
         return Paragraph('注文書', style)
 
-    def cells_from_extras(self, extras):
-        return []
+    def cells_from_extras(self, extras, leading=0, min_length=1):
+        rows = [
+            ([''] * leading)
+            + [Paragraph(extra.field_name if extra.field_name is not None else '', self.normal_style),
+               Paragraph(escape(str(extra.value if extra.value is not None else  '')), self.normal_style)]
+            for extra in extras.fields.all()
+        ]
+        num_rows_to_add = max(min_length - len(rows), 0)
+        blank_rows = [
+            [Paragraph('', self.normal_style), Paragraph('', self.normal_style)]
+            for _ in range(num_rows_to_add)
+        ]
+        return rows + blank_rows
 
     def _text_to_lines(self, text: Optional[str], width=None):
         if not width:
@@ -477,7 +491,8 @@ class OrderReport:
         rows = [
             [Paragraph('<br />'.join('消費税課税対象'), self.vertical_style),
              Paragraph('<br />'.join(['手続', '代行', '費用']), self.normal_style),
-             cell_from_fieldname('inspection_registration_delivery_tax'), cell_from_fieldval('inspection_registration_delivery_tax')],
+             cell_from_fieldname('inspection_registration_delivery_tax', style=self.small_style),
+             cell_from_fieldval('inspection_registration_delivery_tax')],
             ['', '', cell_from_fieldname('proof_of_storage_space'), cell_from_fieldval('proof_of_storage_space')],
             ['', '', cell_from_fieldname('previous_vehicle_processing_fee'), cell_from_fieldval('previous_vehicle_processing_fee')],
             ['', cell_from_fieldname('delivery_fee'), '', cell_from_fieldval('delivery_fee')],
@@ -485,14 +500,16 @@ class OrderReport:
             ['', cell_from_fieldname('remaining_vehicle_tax'), '', cell_from_fieldval('remaining_vehicle_tax')],
             ['', cell_from_fieldname('remaining_liability'), '', cell_from_fieldval('remaining_liability')],
             ['', cell_from_fieldname('recycle_management_fee'), '', cell_from_fieldval('recycle_management_fee')],
-        ] + self.cells_from_extras(info.extras)
+        ] + self.cells_from_extras(info.extras, leading=1)
         table = Table(
             rows,
             colWidths=[
                 THIRTY2NDS,
                 THIRTY2NDS + (THIRTY2NDS // 2),
                 (THIRDS // 2) - (THIRTY2NDS * 2) - (THIRTY2NDS // 2),
-                (THIRDS // 2) - THIRTY2NDS],
+                (THIRDS // 2) - THIRTY2NDS
+            ],
+            rowHeights=[10] * len(rows)
         )
         style = deepcopy(self.basic_tablestyle)
         lower_spans = [
@@ -516,15 +533,74 @@ class OrderReport:
         rows = [
             [Paragraph('<br />'.join('非課税'), self.vertical_style),
              Paragraph('<br />'.join(['預り', '法定', '費用']), self.normal_style),
-             cell_from_fieldname('inspection_registration_delivery_exemption'),
+             cell_from_fieldname('inspection_registration_delivery_exemption', style=self.small_style),
              cell_from_fieldval('inspection_registration_delivery_exemption')],
-        table = Table([[Paragraph('tax exemption', self.normal_style)]])
+            ['', '', cell_from_fieldname('proof_of_storage_exemption'), cell_from_fieldval('proof_of_storage_exemption')],
+            ['', '', cell_from_fieldname('previous_vehicle_processing_exemption'),
+             cell_from_fieldval('previous_vehicle_processing_exemption')],
+            ['', cell_from_fieldname('recycle_deposit'), '', cell_from_fieldval('recycle_deposit')]
+        ]
+        table = Table(
+            rows,
+            colWidths=[
+                THIRTY2NDS,
+                THIRTY2NDS + (THIRTY2NDS // 2),
+                (THIRDS // 2) - (THIRTY2NDS * 2) - (THIRTY2NDS // 2),
+                (THIRDS // 2) - THIRTY2NDS
+            ],
+            rowHeights=[10] * len(rows)
+        )
+        style = deepcopy(self.basic_tablestyle)
+        lower_spans = [
+            ('SPAN', (1, rownum), (2, rownum))
+            for rownum in range(3, len(rows) + 1)
+        ]
+        style += [
+            ('SPAN', (0, 0), (0, -1)),
+            ('SPAN', (1, 0), (1, 2)),
+        ]
+        style += lower_spans
+        table.setStyle(style)
         return table
 
     def accessories(self):
-        table = Table([[Paragraph('accessories', self.normal_style)]])
+        itemized_rows = self.cells_from_extras(self.order.itemization.accessories, leading=1, min_length=10)
+        total = self.order.itemization.accessories_total
+        total = str(total) if total is not None else '0'
+        rows = [
+            [Paragraph('<br />'.join('付属品'), self.vertical_style), '', ''],
+        ] + itemized_rows + [
+            ['', Paragraph('計 (5)', self.normal_style), Paragraph(total, self.normal_style)],
+        ]
+        table = Table(
+            rows,
+            colWidths=[THIRTY2NDS, (THIRDS // 2) - THIRTY2NDS, (THIRDS // 2) - THIRTY2NDS],
+            rowHeights=[10] * len(rows)
+        )
+        style = deepcopy(self.basic_tablestyle)
+        style += [
+            ('SPAN', (0, 0), (0, -1)),
+        ]
+        table.setStyle(style)
         return table
 
     def custom_specs(self):
-        table = Table([[Paragraph('custom specs', self.normal_style)]])
+        itemized_rows = self.cells_from_extras(self.order.itemization.custom_specs, leading=1, min_length=10)
+        total = self.order.itemization.custom_specs_total
+        total = str(total) if total is not None else '0'
+        rows = [
+            [Paragraph('<br />'.join('特別仕様'), self.vertical_style), '', ''],
+        ] + itemized_rows + [
+            ['', Paragraph('計 (6)', self.normal_style), Paragraph(total, self.normal_style)],
+        ]
+        table = Table(
+            rows,
+            colWidths=[THIRTY2NDS, (THIRDS // 2) - THIRTY2NDS, (THIRDS // 2) - THIRTY2NDS],
+            rowHeights=[10] * len(rows),
+        )
+        style = deepcopy(self.basic_tablestyle)
+        style += [
+            ('SPAN', (0, 0), (0, -1)),
+        ]
+        table.setStyle(style)
         return table
