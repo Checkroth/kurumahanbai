@@ -142,6 +142,7 @@ class OrderReport:
         '''
         [お支払い現金合計] = [車輌販売価額] + [諸費用合計] + [消費税合計] - [下取車価額]
         '''
+        # TODO:: actual numbres
         sale_price = 2137880
         expenses = 831200
         consumption_tax = 0
@@ -231,7 +232,7 @@ class OrderReport:
         rows = [
             ([''] * leading)
             + [Paragraph(extra.field_name if extra.field_name is not None else '', self.normal_style),
-               Paragraph(escape(str(extra.value if extra.value is not None else  '')), self.normal_style)]
+               Paragraph(escape(str(extra.value if extra.value is not None else  '')), self.right_style)]
             for extra in extras.fields.all()
         ]
         num_rows_to_add = max(min_length - len(rows), 0)
@@ -270,7 +271,7 @@ class OrderReport:
         if global_style is None:
             global_style = self.normal_style
 
-        def get_field(field, style=None):
+        def get_field(field, nocomma=False, style=None):
             if style is None:
                 style = global_style
             field_value = getattr(model, field)
@@ -280,7 +281,10 @@ class OrderReport:
 
             try:
                 field_value = int(field_value)
-                converted = f'{field_value:,}'
+                if nocomma:
+                    converted = str(field_value)
+                else:
+                    converted = f'{field_value:,}'
             except (ValueError, TypeError):
                 converted = str(field_value) if field_value is not None else ''
             return Paragraph(escape(converted), style)
@@ -360,7 +364,7 @@ class OrderReport:
              cell_from_fieldname('name_furi'), cell_from_fieldval('name_furi')],
             ['', cell_from_fieldname('name'), cell_from_fieldval('name')],
             ['', cell_from_fieldname('birthday'), cell_from_fieldval('birthday')],
-            ['', cell_from_fieldname('postal_code'), cell_from_fieldval('postal_code')],
+            ['', cell_from_fieldname('postal_code'), cell_from_fieldval('postal_code', nocomma=True)],
             ['', cell_from_fieldname('address'), Paragraph(address, self.normal_style)],
             ['', cell_from_fieldname('contact_phone'), cell_from_fieldval('contact_name'), cell_from_fieldval('contact_phone')],
         ], colWidths=[SIXTEENTHS // 2, SIXTEENTHS, (EIGHTHS * 2), EIGHTHS])
@@ -387,7 +391,9 @@ class OrderReport:
             [Paragraph('<br />'.join('登録名義人'), self.vertical_style),
              cell_from_fieldname('name_furi'), cell_from_fieldval('name_furi')],
             ['', cell_from_fieldname('name'), cell_from_fieldval('name')],
-            ['', cell_from_fieldname('postal_code'), cell_from_fieldval('postal_code'), cell_from_fieldval('phone')],
+            ['', cell_from_fieldname('postal_code'),
+             cell_from_fieldval('postal_code', nocomma=True),
+             cell_from_fieldval('phone', nocomma=True)],
             ['', cell_from_fieldname('address'), Paragraph(address, self.normal_style)],
         ], colWidths = [SIXTEENTHS // 2, SIXTEENTHS, (EIGHTHS * 2), EIGHTHS])
         style = deepcopy(self.basic_tablestyle)
@@ -455,9 +461,9 @@ class OrderReport:
     def notes(self):
         notes = self._text_to_lines(self.order.notes, 48)
         table = Table([
-            [Paragraph('備考', self.styles['Heading4']),
-             Paragraph(notes, self.normal_style)],
-        ], colWidths=[SIXTEENTHS, THIRDS - SIXTEENTHS])
+            [Paragraph('備考', self.styles['Heading4'])],
+            [Paragraph(notes, self.normal_style)]
+        ])
         style = deepcopy(self.basic_tablestyle)
         table.setStyle(style)
         return table
@@ -570,7 +576,7 @@ class OrderReport:
         rows = [
             [Paragraph('<br />'.join('付属品'), self.vertical_style), '', ''],
         ] + itemized_rows + [
-            ['', Paragraph('計 (5)', self.normal_style), Paragraph(total, self.normal_style)],
+            ['', Paragraph('計 (5)', self.normal_style), Paragraph(total, self.right_style)],
         ]
         table = Table(
             rows,
@@ -591,7 +597,7 @@ class OrderReport:
         rows = [
             [Paragraph('<br />'.join('特別仕様'), self.vertical_style), '', ''],
         ] + itemized_rows + [
-            ['', Paragraph('計 (6)', self.normal_style), Paragraph(total, self.normal_style)],
+            ['', Paragraph('計 (6)', self.normal_style), Paragraph(total, self.right_style)],
         ]
         table = Table(
             rows,

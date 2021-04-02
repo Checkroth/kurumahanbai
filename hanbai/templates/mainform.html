@@ -149,6 +149,7 @@
 		<li>
 			<ul class="main-row totals-bar">
 				<li>
+					<!-- TODO:: actual numbers -->
 					<div class="box-label">お支払い現金合計</div>
 					<div class="box total">2,221,000</div>
 				</li>
@@ -187,39 +188,39 @@
             <div class="table">
               <div class="tr">
                 <span class="td">車輌本体課税象額</span>
-                <span class="td">TODO円</span>
+                <span class="td">{{ order.itemization.subtotal|default_if_none:"" }}</span>
               </div>
               <div class="tr">
                 <span class="td">付属品価額</span>
-                <span class="td">TODO円</span>
+                <span class="td">{{ order.itemization.accessories_total|default_if_none:"" }}</span>
               </div>
 							<div class="tr">
 								<span class="td">特別仕様</span>
-								<span class="td">TODO円</span>
+								<span class="td">{{ order.itemization.custom_specs_total|default_if_none:"" }}</span>
 							</div>
 							<div class="tr">
 								<span class="td">車輌販売価額</span>
-								<span class="td">TODO円</span>
+								<span class="td">{{ order.itemization.total_sale_price|default_if_none:"" }}</span>
 							</div>
 							<div class="tr">
 								<span class="td">税金・保険料</span>
-								<span class="td">TODO円</span>
+								<span class="td">{{ order.itemization.insurance_tax_total|default_if_none:"" }}</span>
 							</div>
 							<div class="tr">
 								<span class="td">販売諸費用（課税)</span>
-								<span class="td">TODO円</span>
+								<span class="td">{{ order.itemization.consumption_tax_total|default_if_none:"" }}</span>
 							</div>
 							<div class="tr">
 								<span class="td">販売諸費用（非課税)</span>
-								<span class="td">TODO円</span>
+								<span class="td">{{ order.itemization.tax_exemption_total|default_if_none:"" }}</span>
 							</div>
 							<div class="tr">
 								<span class="td">消費税合計</span>
-								<span class="td">TODO円</span>
+								<span class="td">{{ order.itemization.all_tax_total|default_if_none:"" }}</span>
 							</div>
               <div class="tr">
                 <span class="td">合計</span>
-                <span class="td">TODO円</span>
+                <span class="td">{{ order.itemization.all_total|default_if_none:"" }}</span>
               </div>
             </div>
 					</li>

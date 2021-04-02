@@ -27,8 +27,9 @@ def edit_order(request, order_id):
     order = repo.get_order_or_404(order_id)
     # TODO:: A single form for "extra section"s that handles the input type etc.
     consumption_tax_extras_form = forms.CustomFieldsFormSet.build_formset(
-        order.itemization.consumption_tax,
+        order.itemization.consumption_tax.extras,
         order.itemization.consumption_tax.extras.fields.all(),
+        extra=1,
     )
     accessories_form = forms.CustomFieldsFormSet.build_formset(
         order.itemization.accessories,
