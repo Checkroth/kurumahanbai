@@ -32,6 +32,7 @@ class CustomFieldsFormSet(forms.BaseModelFormSet):
 class CustomFieldForm(SelfCleaningForm):
     form_class = 'custom_field'
     type_agnostic_value = forms.CharField(max_length=255, required=False)
+
     def __init__(self, *args, section, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['section'].initial = section

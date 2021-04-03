@@ -86,3 +86,6 @@ class ExtrasRespository:
 
     def get_field_or_404(self, field_id):
         return get_object_or_404(self.extra_field_model, pk=field_id)
+
+    def delete_extra(self, field_id):
+        self.extra_field_model.objects.filter(id=field_id).delete()

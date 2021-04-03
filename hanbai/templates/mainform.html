@@ -266,6 +266,7 @@
 									<input type="hidden" name="form_prefix" value="{{ form.prefix }}">
 									<span class="td">{{ form.field_name }}</span>
 									<span class="td">{{ form.type_agnostic_value }}</span>
+                  {{ form|extras_form_delete|safe }}
 								</form>
 								{% endfor %}
 								<tr class="total-row">
@@ -357,17 +358,18 @@
    }, 200);
  }
 
- async function blurHandler() {
+ async function blurHandler(nested) {
+   const that = nested ? nested : this;
    try {
-     const response = await fetch(this.form.action, {
-       method: this.form.method,
-       body: new FormData(this.form)
+     const response = await fetch(that.form.action, {
+       method: that.form.method,
+       body: new FormData(that.form)
      });
 
      if (response.status === 200) {
        data = await response.json();
        if (data.new_action) {
-         this.form.action = data.new_action;
+         that.form.action = data.new_action;
        }
        console.log('success');
        fadeOutEffect('success');
@@ -385,9 +387,17 @@
    }
  }
 
+ async function deleteHandler() {
+   debugger
+   const response = await fetch(this.action);
+ }
+
  for (let input of document.querySelectorAll('input, select, textarea')) {
    input.onblur = blurHandler;
    input.onchage = blurHandler;
+ }
+ for (let a of document.querySelectorAll('button.delete')) {
+   a.onclick = deleteHandler;
  }
 </script>
 {% endblock %}

@@ -22,6 +22,9 @@
         font-weight: bold;
         border: none;
     }
+    #mainform li.company-info {
+        display: none;
+    }
 }
 
 h1 {
@@ -82,7 +85,7 @@ ul.messages li.error {
 }
 
 #mainform span.td {
-    min-width: 35px;
+    min-width: 70px;
 }
 
 ul.main-row {
@@ -90,7 +93,7 @@ ul.main-row {
 }
 
 #mainform li {
-    border: solid 1px #479CC6;
+    border: solid 2px #479CC6;
     border-radius: 10px;
     margin: 10px 0;
     padding: 10px 0;
@@ -152,6 +155,7 @@ ul.main-row {
 
 #mainform li.basic-table {
     width: 100%;
+    padding: 5px;
 }
 
 #mainform li.basic-table.labeled-table {

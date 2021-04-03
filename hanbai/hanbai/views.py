@@ -130,6 +130,14 @@ def process_new_extras_form(request, section_id):
     return JsonResponse({'new_action': update_action})
 
 
+@require_http_methods(['DELETE'])
+def delete_extra_field(request, instance_id):
+    repo = api.get_extras_repo()
+    repo.delete_extra(instance_id)
+    return JsonResponse({})
+    
+
+
 def download_report(request, order_id):
     repo = api.get_order_repository()
     order = repo.get_order_or_404(order_id)

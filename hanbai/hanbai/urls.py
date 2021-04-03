@@ -27,5 +27,6 @@ urlpatterns = [
     path('set_form_generic/<str:form_class>/<int:instance_id>', views.set_form_generic, name='set_form_generic'),
     path('process_new_extras_form/<int:section_id>', views.process_new_extras_form, name='process_new_extras_form'),
     path('process_extras_form/<int:instance_id>', views.process_existing_extras_form, name='process_existing_extras_form'),
+    path('delete_extras/<int:instance_id>', views.delete_extra_field, name='delete_extras'),
     path('download/<int:order_id>', views.download_report, name='download_report'),
 ]
