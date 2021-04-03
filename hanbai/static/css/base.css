@@ -1,3 +1,29 @@
+@media (max-width: 1100px) {
+    .container {
+        /* overflow-x: hidden; */
+    }
+    #mainform ul {
+        flex-direction: column;
+    }
+    .totals-bar div.box {
+        text-align: center;
+        width: 25%;
+        margin: auto;
+        padding: 0;
+    }
+    #mainform ul.main-row.totals-bar li {
+        padding: 0;
+        margin: 0;
+    }
+    #mainform ul li.vertical-label {
+        writing-mode: unset;
+        padding: 5px;
+        margin: 0;
+        font-weight: bold;
+        border: none;
+    }
+}
+
 h1 {
     text-align: center;
 }
@@ -31,6 +57,7 @@ ul.messages {
     justify-content: center;
 	top: 0;
 	position: fixed;
+  border: none;
 }
 
 ul.messages li {
@@ -54,12 +81,23 @@ ul.messages li.error {
     padding: 0;
 }
 
+#mainform span.td {
+    min-width: 35px;
+}
+
 ul.main-row {
     margin: 2em 0;
 }
 
 #mainform li {
-    border: solid 1px black;
+    border: solid 1px #479CC6;
+    border-radius: 10px;
+    margin: 10px 0;
+    padding: 10px 0;
+}
+
+.noborder {
+    border: none!important;
 }
 
 #mainform td {
@@ -116,11 +154,28 @@ ul.main-row {
     width: 100%;
 }
 
+#mainform li.basic-table.labeled-table {
+    border-radius: 0 10px 10px 0;
+}
 
-li.math-separator {
+#mainform li.vertical-label {
+    border-radius: 10px 0 0 10px;
+    border-right: none;
+}
+
+
+#mainform li.math-separator {
     font-size: 3em;
     margin: 0 .5em;
-    padding-top: 1%;
+    padding-top: 2.5%;
+    border: none;
+    text-align: center;
+}
+
+#mainform ul.totals-bar {
+    padding: 0;
+    margin: -57px;
+    border: none;
 }
 
 div.box {
@@ -137,7 +192,6 @@ div.box.total {
     border: solid #479CC6 2px;
 }
 
-
 .box-label {
     text-align: center;
 }
@@ -152,4 +206,33 @@ form.tr, div.tr {
 
 span.td {
     display:table-cell;
+}
+
+div.tr.shortform span.td.second {
+    width: 50%;
+}
+
+
+#mainform li.company-info {
+    border: none;
+}
+
+
+#mainform li.table-header {
+    border: none;
+    font-weight: bold;
+    padding: 0;
+    margin: 0;
+    margin-bottom: -10px;
+}
+
+#mainform li.table-container {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+#mainform textarea {
+    height: 50px;
+    width: 91%
 }

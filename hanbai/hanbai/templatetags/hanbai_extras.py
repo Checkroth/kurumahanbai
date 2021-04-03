@@ -7,7 +7,7 @@ register = template.Library()
 
 @register.filter
 def as_columns(form_field):
-    return f'<span class="td">{form_field.label}</span><span class="td">{form_field}</span>'
+    return f'<span class="td first">{form_field.label}</span><span class="td second">{form_field}</span>'
 
 
 @register.filter

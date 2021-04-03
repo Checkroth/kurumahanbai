@@ -286,13 +286,19 @@ class Itemization(models.Model):
         return self.all_total
 
     @property
+    def taxable_total(self):
+        '''(9 + 10 + 11)'''
+        return sum([
+            self.total_sale_price or 0,
+            self.insurance_tax_total or 0,
+            self.consumption_tax_total or 0,
+        ])
+
+    @property
     def all_total(self):
         '''14 合計 ( 9 + 10 + 11 + 12)'''
-        return sum(filter(None, [self.total_sale_price,
-                                 self.insurance_tax_total,
-                                 self.consumption_tax_total,
-                                 self.tax_exemption_total]))
-    
+        return sum(filter(None, [self.taxable_total, self.tax_exemption_total]))
+
 
 class PaymentDetails(models.Model):
     '''支払い明細'''

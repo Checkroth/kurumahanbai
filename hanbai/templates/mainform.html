@@ -4,13 +4,11 @@
 {% block content %}
 <div id="mainform">
     <ul class="form-container">
-    <li>
       <ul class="messages">
         <li class="success" style="display: none;">最新入力を保存しました。</li>
         <li class="error" style="display: none;">最新入力の保存は失敗しました。</li>
       </ul>
-    </li>
-		<li>
+		<li class="noborder">
 			<ul class="main-row top-half">
 				<ul class="topleft col">
 					<li class="form-header">
@@ -95,7 +93,7 @@
 					</li>
 				</ul>
 				<ul class="topright col">
-					<li class="comapny-info">
+					<li class="company-info">
 						★あなたの愛車のトータルアドバイザー★<br />
 						〒018-0841<br />
 						オートサービス佐々木<br />
@@ -103,10 +101,10 @@
 						ＴＥＬ６６ー２１０４<br />
 						ＦＡＸ６６ー２１８５
 					</li>
-					<li class="labeled-table">
+					<li class="table-container">
 						<ul>
 							<li class="vertical-label">ご購入者</li>
-							<li class="basic-table">
+							<li class="basic-table labeled-table">
 								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=customer_info_form.form_class instance_id=customer_info_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr">{{ customer_info_form.name_furi|as_columns|safe }}</div>
@@ -123,10 +121,10 @@
               </li>
 						</ul>
 					</li>
-					<li>
+					<li class="table-container">
 						<ul>
 							<li class="vertical-label">登録名義人</li>
-							<li>
+							<li class="basic-table labeled-table">
 								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=registered_holder_info_form.form_class instance_id=registered_holder_info_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr">{{ registered_holder_info_form.name_furi|as_columns|safe }}</div>
@@ -146,44 +144,46 @@
 
 			</ul>
 		</li>
-		<li>
+		<li class="noborder">
 			<ul class="main-row totals-bar">
-				<li>
+				<li class="noborder">
 					<!-- TODO:: actual numbers -->
 					<div class="box-label">お支払い現金合計</div>
 					<div class="box total">2,221,000</div>
 				</li>
 				<li class="math-separator">=</li>
-				<li>
+				<li class="noborder">
 					<div class="box-label">車輌販売価額</div>
-					<div class="box">2,137,880</div>
+					<div class="box">{{ order.itemization.total_sale_price }}</div>
 				</li>
 				<li class="math-separator">+</li>
-				<li>
+				<li class="noborder"pp>
 					<div class="box-label">諸費用合計</div>
-					<div class="box">83,120</div>
+					<div class="box">
+						{{ order.itemization.taxable_total }}
+					</div>
 				</li>
 				<li class="math-separator">+</li>
-				<li>
+				<li class="noborder">
 					<div class="box-label">消費税合計</div>
-					<div class="box">0</div>
+					<div class="box">{{ order.itemization.all_tax_total }}</div>
 				</li>
 				<li class="math-separator">-</li>
-				<li>
+				<li class="noborder">
 					<div class="box-label">下取車価額</div>
 					<div class="box">0</div>
 				</li>
 			</ul>
 		</li>
 
-		<li>
+		<li class="noborder">
 			<ul class="main-row bottom-half">
 				<ul class="bottom-col-1 col thirds">
 					<li class="basic-table blue-table">
             <form class="table" method="POST" action="{% url 'set_form_generic' form_class=itemization_form.form_class instance_id=itemization_form.instance.id %}">
               {% csrf_token %}
-              <div class="tr">{{ itemization_form.vehicle_price|as_columns|safe }}</div>
-              <div class="tr">{{ itemization_form.special_discount|as_columns|safe }}</div>
+              <div class="tr shortform">{{ itemization_form.vehicle_price|as_columns|safe }}</div>
+              <div class="tr shortform">{{ itemization_form.special_discount|as_columns|safe }}</div>
             </form>
             <div class="table">
               <div class="tr">
@@ -226,10 +226,10 @@
 					</li>
 				</ul>
 				<ul class="bottom-col-2 col thirds">
-					<li class="labeled-table">
+					<li class="table-container">
 						<ul>
 							<li class="vertical-label">税金・保険量</li>
-							<li class="basic-table">
+							<li class="basic-table labeled-table">
 								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=insurance_tax_form.form_class instance_id=insurance_tax_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr">{{ insurance_tax_form.vehicle_tax|as_columns|safe }}</div>
@@ -244,10 +244,10 @@
 							</li>
 						</ul>
 					</li>
-					<li class="labeled-table">
+					<li class="table-container">
 						<ul>
 							<li class="vertical-label">消費税課税対象</li>
-							<li class="basic-table">
+							<li class="basic-table labeled-table">
 								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=consumption_tax_form.form_class instance_id=consumption_tax_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr">手続代行費用</div>
@@ -274,10 +274,10 @@
 							</li>
 						</ul>
 					</li>
-					<li class="labeled-table">
+					<li class="table-container">
 						<ul>
 							<li class="vertical-label">非課税</li>
-							<li class="basic-table">
+							<li class="basic-table labeled-table">
 								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=tax_exemption_form.form_class instance_id=tax_exemption_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr">預り法定費用</div>
@@ -293,10 +293,10 @@
 					</li>
 				</ul>
 				<ul class="bottom-col-3 col thirds">
-					<li class="labeled-table">
+					<li class="table-container">
             <ul>
               <li class="vertical-label">付属品</li>
-              <li class="basic-table">
+              <li class="basic-table labeled-table">
                 <div class="table">
                   {% for form in accessories_form %}
                   <form class="tr" method="POST" action="{{ form|extras_form_action }}">
@@ -312,10 +312,10 @@
               </li>
             </ul>
 					</li>
-					<li class="labeled-table">
+					<li class="table-container">
             <ul>
               <li class="vertical-label">特別仕様</li>
-              <li class="basic-table">
+              <li class="basic-table labeled-table">
                 <div class="table">
                   {% for form in custom_specs_form %}
                   <form class="tr" method="POST" action="{{ form|extras_form_action }}">
@@ -334,8 +334,6 @@
 					</li>
 				</ul>
 			</ul>
-		</li>
-		<li class="form-footer">
 		</li>
 	</ul>
 </div>
