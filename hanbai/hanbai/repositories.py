@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
@@ -77,15 +78,24 @@ class OrderRepository:
 
 
 class ExtrasRespository:
-    def __init__(self, extra_field_model, extra_section_model):
+    def __init__(self, extra_field_model, extra_section_model, order_model):
         self.extra_field_model = extra_field_model
         self.extra_section_model = extra_section_model
+        self.order_model = order_model
 
     def get_section_or_404(self, section_id):
         return get_object_or_404(self.extra_section_model, pk=section_id)
 
     def get_field_or_404(self, field_id):
         return get_object_or_404(self.extra_field_model, pk=field_id)
+
+    def get_order_from_section(self, section_id):
+        return get_object_or_404(
+            self.order_model,
+            Q(itemization__consumption_tax__extras=section_id)
+            | Q(itemization__accessories__extras=section_id)
+            | Q(itemization__custom_specs=section_id),
+        )
 
     def delete_extra(self, field_id):
         self.extra_field_model.objects.filter(id=field_id).delete()

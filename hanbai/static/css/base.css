@@ -1,3 +1,9 @@
+:root {
+    --light-color: #ADDAEF;
+    --mid-color: #97BFD1;
+    --dark-color: #479CC6;
+}
+
 @media (max-width: 1100px) {
     .container {
         /* overflow-x: hidden; */
@@ -93,7 +99,7 @@ ul.main-row {
 }
 
 #mainform li {
-    border: solid 2px #479CC6;
+    border: solid 2px var(--dark-color);
     border-radius: 10px;
     margin: 10px 0;
     padding: 10px 0;
@@ -151,6 +157,7 @@ ul.main-row {
     text-orientation: upright;
     padding: 1em .5em;
     letter-spacing: 1em;
+    background: var(--mid-color);
 }
 
 #mainform li.basic-table {
@@ -200,10 +207,6 @@ div.box.total {
     text-align: center;
 }
 
-div.table  {
-    display:table;
-}
-
 form.tr, div.tr {
     display:table-row;
 }
@@ -239,4 +242,17 @@ div.tr.shortform span.td.second {
 #mainform textarea {
     height: 50px;
     width: 91%
+}
+
+#mainform li.blue-table span.first {
+    background: var(--light-color);
+}
+
+#mainform li.blue-table span.td {
+    padding-left: 5px;
+    max-width: 177px;
+}
+
+#mainform li.basic-table.blue-table {
+    padding: 0;
 }

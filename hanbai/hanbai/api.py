@@ -22,4 +22,5 @@ def get_extras_repo():
     return repositories.ExtrasRespository(
         models.ExtraField,
         models.CustomSection,
+        models.Order,
     )

@@ -154,19 +154,17 @@
 				<li class="math-separator">=</li>
 				<li class="noborder">
 					<div class="box-label">車輌販売価額</div>
-					<div class="box">{{ order.itemization.total_sale_price }}</div>
+					<div class="box" data-item="total_sale_price">{{ order.itemization.total_sale_price }}</div>
 				</li>
 				<li class="math-separator">+</li>
 				<li class="noborder"pp>
 					<div class="box-label">諸費用合計</div>
-					<div class="box">
-						{{ order.itemization.taxable_total }}
-					</div>
+					<div class="box" data-item="taxable_total">{{ order.itemization.taxable_total }}</div>
 				</li>
 				<li class="math-separator">+</li>
 				<li class="noborder">
 					<div class="box-label">消費税合計</div>
-					<div class="box">{{ order.itemization.all_tax_total }}</div>
+					<div class="box" data-item="all_tax_total">{{ order.itemization.all_tax_total }}</div>
 				</li>
 				<li class="math-separator">-</li>
 				<li class="noborder">
@@ -187,40 +185,56 @@
             </form>
             <div class="table">
               <div class="tr">
-                <span class="td">車輌本体課税象額</span>
-                <span class="td">{{ order.itemization.subtotal|default_if_none:"" }}</span>
+                <span class="td first">車輌本体課税象額</span>
+                <span class="td" data-item="subtotal">{{ order.itemization.subtotal|default_if_none:"" }}</span>
               </div>
               <div class="tr">
-                <span class="td">付属品価額</span>
-                <span class="td">{{ order.itemization.accessories_total|default_if_none:"" }}</span>
+                <span class="td first">付属品価額</span>
+                <span class="td" data-item="accessories_total">
+                  {{ order.itemization.accessories_total|default_if_none:"" }}
+                </span>
               </div>
 							<div class="tr">
-								<span class="td">特別仕様</span>
-								<span class="td">{{ order.itemization.custom_specs_total|default_if_none:"" }}</span>
+								<span class="td first">特別仕様</span>
+								<span class="td" data-item="custom_specs_total">
+                  {{ order.itemization.custom_specs_total|default_if_none:"" }}
+                </span>
 							</div>
 							<div class="tr">
-								<span class="td">車輌販売価額</span>
-								<span class="td">{{ order.itemization.total_sale_price|default_if_none:"" }}</span>
+								<span class="td first">車輌販売価額</span>
+								<span class="td" data-item="total_sale_price" >
+                  {{ order.itemization.total_sale_price|default_if_none:"" }}
+                </span>
 							</div>
 							<div class="tr">
-								<span class="td">税金・保険料</span>
-								<span class="td">{{ order.itemization.insurance_tax_total|default_if_none:"" }}</span>
+								<span class="td first">税金・保険料</span>
+								<span class="td" data-item="insurance_tax_total">
+                  {{ order.itemization.insurance_tax_total|default_if_none:"" }}
+                </span>
 							</div>
 							<div class="tr">
-								<span class="td">販売諸費用（課税)</span>
-								<span class="td">{{ order.itemization.consumption_tax_total|default_if_none:"" }}</span>
+								<span class="td first">販売諸費用（課税)</span>
+								<span class="td" data-item="consumption_tax_total">
+                  {{ order.itemization.consumption_tax_total|default_if_none:"" }}
+                </span>
 							</div>
 							<div class="tr">
-								<span class="td">販売諸費用（非課税)</span>
-								<span class="td">{{ order.itemization.tax_exemption_total|default_if_none:"" }}</span>
+								<span class="td first">販売諸費用（非課税)</span>
+								<span class="td" data-item="tax_exemption_total">
+                  {{ order.itemization.tax_exemption_total|default_if_none:"" }}
+                </span>
 							</div>
 							<div class="tr">
-								<span class="td">消費税合計</span>
-								<span class="td">{{ order.itemization.all_tax_total|default_if_none:"" }}</span>
+								<span class="td first">消費税合計</span>
+								<span class="td" data-item="all_tax_totals">
+                  {{ order.itemization.all_tax_total|default_if_none:"" }}
+                </span>
 							</div>
               <div class="tr">
-                <span class="td">合計</span>
-                <span class="td">{{ order.itemization.all_total|default_if_none:"" }}</span>
+                <span class="td first">合計</span>
+                <span class="td" data-item="all_total">
+                  {{ order.itemization.all_total|default_if_none:"" }}
+                </span>
               </div>
             </div>
 					</li>
@@ -229,7 +243,7 @@
 					<li class="table-container">
 						<ul>
 							<li class="vertical-label">税金・保険量</li>
-							<li class="basic-table labeled-table">
+							<li class="basic-table labeled-table blue-table">
 								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=insurance_tax_form.form_class instance_id=insurance_tax_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr">{{ insurance_tax_form.vehicle_tax|as_columns|safe }}</div>
@@ -238,8 +252,15 @@
 									<div class="tr">{{ insurance_tax_form.vehicle_liability_insurance|as_columns|safe }}</div>
 									<div class="tr">{{ insurance_tax_form.optional_insurance|as_columns|safe }}</div>
 									<div class="tr">{{ insurance_tax_form.stamp_duty|as_columns|safe }}</div>
-									<tr class="total-row">
-										<span class="td">合計</span><span class="td">35150</span>
+									<div class="tr total-row">
+                    <span class="td first">合計</span>
+                    <span class="td" data-item="insurance_tax_total">
+                      {{ order.itemization.insurance_tax_total|default_if_none:0 }}
+                    </span>
+                  </div>
+									<div class="tr total-row"><span class="td first">　</span></div>
+									<div class="tr total-row"><span class="td first">　</span></div>
+									<div class="tr total-row"><span class="td first">　</span></div>
 								</form>
 							</li>
 						</ul>
@@ -247,13 +268,13 @@
 					<li class="table-container">
 						<ul>
 							<li class="vertical-label">消費税課税対象</li>
-							<li class="basic-table labeled-table">
+							<li class="basic-table labeled-table blue-table">
 								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=consumption_tax_form.form_class instance_id=consumption_tax_form.instance.id %}">
                   {% csrf_token %}
-									<div class="tr">手続代行費用</div>
+									<div class="tr"><span class="td first">手続代行費用</span></div>
 									<div class="tr">{{ consumption_tax_form.inspection_registration_delivery_tax|as_columns|safe }}</div>
 									<div class="tr">{{ consumption_tax_form.proof_of_storage_space|as_columns|safe }}</div>
-									<div class="tr">{{ consumption_tax_form.previous_vehicle_processing_fee|as_columns|safe }}</div>
+									<div class="tr">{{ consumption_tax_form.previous_vehicle_processoing_fee|as_columns|safe }}</div>
 									<div class="tr">{{ consumption_tax_form.delivery_fee|as_columns|safe }}</div>
 									<div class="tr">{{ consumption_tax_form.audit_fee|as_columns|safe }}</div>
 									<div class="tr">{{ consumption_tax_form.remaining_vehicle_tax|as_columns|safe }}</div>
@@ -264,30 +285,38 @@
 								<form class="tr" method="POST" action="{{ form|extras_form_action }}">
 									{% csrf_token %}
 									<input type="hidden" name="form_prefix" value="{{ form.prefix }}">
-									<span class="td">{{ form.field_name }}</span>
+									<span class="td first">{{ form.field_name }}</span>
 									<span class="td">{{ form.type_agnostic_value }}</span>
                   {{ form|extras_form_delete|safe }}
 								</form>
 								{% endfor %}
-								<tr class="total-row">
-									<span class="td">合計</span><span class="td">35150</span>
-								</tr>
+								<div class="tr total-row">
+                  <span class="td first">合計</span>
+                  <span class="td" data-item="consumption_tax_total">
+                    {{ order.itemization.consumption_tax_total }}
+                  </span>
+                </div>
 							</li>
 						</ul>
 					</li>
 					<li class="table-container">
 						<ul>
 							<li class="vertical-label">非課税</li>
-							<li class="basic-table labeled-table">
+							<li class="basic-table labeled-table blue-table">
 								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=tax_exemption_form.form_class instance_id=tax_exemption_form.instance.id %}">
                   {% csrf_token %}
-									<div class="tr">預り法定費用</div>
+									<div class="tr"><span class="td first">預り法定費用</span></div>
 									<div class="tr">{{ tax_exemption_form.inspection_registration_delivery_exemption|as_columns|safe }}</div>
 									<div class="tr">{{ tax_exemption_form.proof_of_storage_exemption|as_columns|safe }}</div>
 									<div class="tr">{{ tax_exemption_form.previous_vehicle_processing_exemption|as_columns|safe }}</div>
 									<div class="tr">{{ tax_exemption_form.recycle_deposit|as_columns|safe }}</div>
 									<tr class="total-row">
-										<span class="td">合計</span><span class="td">35150</span>
+								    <div class="tr total-row">
+                      <span class="td first">合計</span>
+                      <span class="td" data-item="tax_exemption_total">
+                        {{ order.itemization.tax_exemption_total }}
+                      </span>
+                    </div>
 								</form>
 							</li>
 						</ul>
@@ -308,7 +337,11 @@
                   </form>
                   {% endfor %}
 									<tr class="total-row">
-										<span class="td">合計</span><span class="td">35150</span>
+										<span class="td">合計</span>
+                    <span class="td" data-item="accessories_total">
+                      {{ order.itemization.accessories_total }}
+                    </span>
+                  </tr>
 								</div>
               </li>
             </ul>
@@ -327,7 +360,10 @@
                   </form>
                   {% endfor %}
 									<tr class="total-row">
-										<span class="td">合計</span><span class="td">35150</span>
+										<span class="td">合計</span>
+                    <span class="td" data-item="custom_specs_total">
+                      {{ order.itemization.custom_specs_total }}
+                    </span>
                   </tr>
 								</div>
               </li>
@@ -358,18 +394,24 @@
    }, 200);
  }
 
- async function blurHandler(nested) {
-   const that = nested ? nested : this;
-   try {
-     const response = await fetch(that.form.action, {
-       method: that.form.method,
-       body: new FormData(that.form)
-     });
+ function updateTotals(itemization) {
+   const order_elements = document.querySelectorAll("[data-item]");
+   for (var element in order_elements) {
+     return itemization[element.dataset.item];
+   }
+ }
 
+ async function blurHandler(nested) {
+   try {
+     const response = await fetch(this.form.action, {
+       method: this.form.method,
+       body: new FormData(this.form)
+     });
      if (response.status === 200) {
        data = await response.json();
+       debugger
        if (data.new_action) {
-         that.form.action = data.new_action;
+         this.form.action = data.new_action;
        }
        console.log('success');
        fadeOutEffect('success');

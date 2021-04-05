@@ -11,7 +11,7 @@ class ExtraField(models.Model):
     value_type = models.IntegerField(choices=FieldTypeChoices.choices, default=FieldTypeChoices.STRING.value)
     string_value = models.CharField(max_length=255, null=True, blank=True)
     integer_value = models.IntegerField(null=True, blank=True)
-    section = models.ForeignKey(
+    section.h = models.ForeignKey(
         'CustomSection',
         on_delete=models.CASCADE,
         related_name='fields',
@@ -349,3 +349,23 @@ class Order(models.Model):
     )
     notes = models.TextField('備考', blank=True)
     person_in_charge = models.CharField('担当者', max_length=255, blank=True)
+
+    def json(self):
+        ret = {
+            'id': self.pk,
+            'itemization': {
+                'total_sale_price': self.itemization.total_sale_price,
+                'taxable_total': self.itemization.taxable_total,
+                'all_tax_total': self.itemization.all_tax_total,
+                'subtotal': self.itemization.subtotal,
+                'accessories_total': self.itemization.accessories_total,
+                'custom_specs_total': self.itemization.custom_specs_total,
+                'insurance_tax_total': self.itemization.insurance_tax_total,
+                'consumption_tax_total': self.itemization.consumption_tax_total,
+                'tax_exemption_total': self.itemization.tax_exemption_total,
+                'all_total': self.itemization.all_total,
+            },
+        }
+        for k, v in ret['itemization'].items():
+            ret['itemization'][k] = v or 0
+        return ret

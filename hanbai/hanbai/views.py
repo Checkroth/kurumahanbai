@@ -43,7 +43,7 @@ def edit_order(request, order_id):
     )
 
     ctx = {
-        'order': order,
+        'order': order.json(),
         'vehicle_info_form': forms.VehicleInfoForm(instance=order.vehicle_info),
         'previous_vehicle_form': forms.PreviousVehicleInfoForm(instance=order.previous_vehicle_info, prefix='previous'),
         'customer_info_form': forms.CustomerInfoForm(instance=order.customer_info),
@@ -90,6 +90,7 @@ def set_form_generic(request, form_class, instance_id):
 def process_existing_extras_form(request, instance_id):
     repo = api.get_extras_repo()
     existing_field = repo.get_field_or_404(instance_id)
+    order = repo.get_order_from_section(existing_field.section)
     form_data = request.POST.copy()
     prefix = form_data.pop('form_prefix')[0]
     form_data[f'{prefix}-section'] = existing_field.section
@@ -103,12 +104,13 @@ def process_existing_extras_form(request, instance_id):
         form.save()
     else:
         return JsonResponse(form.errors, status=HTTPStatus.BAD_REQUEST)
-    return JsonResponse({})
+    return JsonResponse({'order': order.json()})
 
 
 @require_http_methods(['POST'])
 def process_new_extras_form(request, section_id):
     repo = api.get_extras_repo()
+    order = repo.get_order_from_section(section_id)
     section = repo.get_section_or_404(section_id)
     form_data = request.POST.copy()
     prefix = form_data.pop('form_prefix')[0]
@@ -127,7 +129,7 @@ def process_new_extras_form(request, section_id):
     else:
         return JsonResponse(form.errors, status=HTTPStatus.BAD_REQUEST)
 
-    return JsonResponse({'new_action': update_action})
+    return JsonResponse({'new_action': update_action, 'order': order.json()})
 
 
 @require_http_methods(['DELETE'])
@@ -137,10 +139,17 @@ def delete_extra_field(request, instance_id):
     return JsonResponse({})
     
 
-
+@require_http_methods(['GET'])
 def download_report(request, order_id):
     repo = api.get_order_repository()
     order = repo.get_order_or_404(order_id)
     report = OrderReport(order)
     attachment = report.make_report()
     return FileResponse(attachment, as_attachment=True, filename=f'{order.id}-{timezone.now().date()}.pdf')
+
+
+@require_http_methods(['GET'])
+def get_order(request, order_id):
+    repo = api.get_order_repository()
+    order = repo.get_order_or_404(order_id)
+    return JsonResponse({'order': order.json()})
