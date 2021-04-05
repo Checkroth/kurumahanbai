@@ -11,7 +11,7 @@ class ExtraField(models.Model):
     value_type = models.IntegerField(choices=FieldTypeChoices.choices, default=FieldTypeChoices.STRING.value)
     string_value = models.CharField(max_length=255, null=True, blank=True)
     integer_value = models.IntegerField(null=True, blank=True)
-    section.h = models.ForeignKey(
+    section = models.ForeignKey(
         'CustomSection',
         on_delete=models.CASCADE,
         related_name='fields',

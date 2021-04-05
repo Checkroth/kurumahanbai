@@ -27,6 +27,9 @@
         margin: 0;
         font-weight: bold;
         border: none;
+        border-right: 5px solid var(--mid-color);
+        border-radius: 10px;
+        
     }
     #mainform li.company-info {
         display: none;
