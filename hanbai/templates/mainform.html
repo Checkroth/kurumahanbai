@@ -16,7 +16,7 @@
 					</li>
 					<li class="table-header">車輌明細</li>
 					<li class="basic-table">
-						<form class="table" method="POST" action="{% url 'set_form_generic' form_class=vehicle_info_form.form_class instance_id=vehicle_info_form.instance.id %}">
+						<form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=vehicle_info_form.form_class instance_id=vehicle_info_form.instance.id %}">
               {% csrf_token %}
 								<div class="tr">
 									{{ vehicle_info_form.car_name|as_columns|safe }}
@@ -60,7 +60,7 @@
 					</li>
 					<li class="table-header">下取車</li>
 					<li class="basic-table">
-						<form class="table" method="POST" action="{% url 'set_form_generic' form_class=previous_vehicle_form.form_class instance_id=previous_vehicle_form.instance.id %}">
+						<form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=previous_vehicle_form.form_class instance_id=previous_vehicle_form.instance.id %}">
               {% csrf_token %}
 							<div class="tr">
 								{{ previous_vehicle_form.car_name|as_columns|safe }}
@@ -105,7 +105,7 @@
 						<ul>
 							<li class="vertical-label">ご購入者</li>
 							<li class="basic-table labeled-table">
-								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=customer_info_form.form_class instance_id=customer_info_form.instance.id %}">
+								<form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=customer_info_form.form_class instance_id=customer_info_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr">{{ customer_info_form.name_furi|as_columns|safe }}</div>
 									<div class="tr">{{ customer_info_form.name|as_columns|safe }}</div>
@@ -125,7 +125,7 @@
 						<ul>
 							<li class="vertical-label">登録名義人</li>
 							<li class="basic-table labeled-table">
-								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=registered_holder_info_form.form_class instance_id=registered_holder_info_form.instance.id %}">
+								<form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=registered_holder_info_form.form_class instance_id=registered_holder_info_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr">{{ registered_holder_info_form.name_furi|as_columns|safe }}</div>
 									<div class="tr">{{ registered_holder_info_form.name|as_columns|safe }}</div>
@@ -149,7 +149,7 @@
 				<li class="noborder">
 					<!-- TODO:: actual numbers -->
 					<div class="box-label">お支払い現金合計</div>
-					<div class="box total">2,221,000</div>
+					<div class="box total" data-item="final_total">{{ order.itemization.final_total }}</div>
 				</li>
 				<li class="math-separator">=</li>
 				<li class="noborder">
@@ -169,7 +169,7 @@
 				<li class="math-separator">-</li>
 				<li class="noborder">
 					<div class="box-label">下取車価額</div>
-					<div class="box">0</div>
+					<div class="box" data-item="previous_vehicle_price">{{ order.previous_vehicle_price }}x</div>
 				</li>
 			</ul>
 		</li>
@@ -178,7 +178,7 @@
 			<ul class="main-row bottom-half">
 				<ul class="bottom-col-1 col thirds">
 					<li class="basic-table blue-table">
-            <form class="table" method="POST" action="{% url 'set_form_generic' form_class=itemization_form.form_class instance_id=itemization_form.instance.id %}">
+            <form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=itemization_form.form_class instance_id=itemization_form.instance.id %}">
               {% csrf_token %}
               <div class="tr shortform">{{ itemization_form.vehicle_price|as_columns|safe }}</div>
               <div class="tr shortform">{{ itemization_form.special_discount|as_columns|safe }}</div>
@@ -244,7 +244,7 @@
 						<ul>
 							<li class="vertical-label">税金・保険量</li>
 							<li class="basic-table labeled-table blue-table">
-								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=insurance_tax_form.form_class instance_id=insurance_tax_form.instance.id %}">
+								<form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=insurance_tax_form.form_class instance_id=insurance_tax_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr">{{ insurance_tax_form.vehicle_tax|as_columns|safe }}</div>
 									<div class="tr">{{ insurance_tax_form.acquisition_tax|as_columns|safe }}</div>
@@ -269,7 +269,7 @@
 						<ul>
 							<li class="vertical-label">消費税課税対象</li>
 							<li class="basic-table labeled-table blue-table">
-								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=consumption_tax_form.form_class instance_id=consumption_tax_form.instance.id %}">
+								<form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=consumption_tax_form.form_class instance_id=consumption_tax_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr"><span class="td first">手続代行費用</span></div>
 									<div class="tr">{{ consumption_tax_form.inspection_registration_delivery_tax|as_columns|safe }}</div>
@@ -303,7 +303,7 @@
 						<ul>
 							<li class="vertical-label">非課税</li>
 							<li class="basic-table labeled-table blue-table">
-								<form class="table" method="POST" action="{% url 'set_form_generic' form_class=tax_exemption_form.form_class instance_id=tax_exemption_form.instance.id %}">
+								<form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=tax_exemption_form.form_class instance_id=tax_exemption_form.instance.id %}">
                   {% csrf_token %}
 									<div class="tr"><span class="td first">預り法定費用</span></div>
 									<div class="tr">{{ tax_exemption_form.inspection_registration_delivery_exemption|as_columns|safe }}</div>
@@ -396,8 +396,8 @@
 
  function updateTotals(itemization) {
    const order_elements = document.querySelectorAll("[data-item]");
-   for (var element in order_elements) {
-     return itemization[element.dataset.item];
+   for (var element of order_elements) {
+     element.textContent = itemization[element.dataset.item];
    }
  }
 
@@ -409,7 +409,7 @@
      });
      if (response.status === 200) {
        data = await response.json();
-       debugger
+       await updateTotals(data.order.itemization);
        if (data.new_action) {
          this.form.action = data.new_action;
        }

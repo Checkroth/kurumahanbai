@@ -199,6 +199,7 @@ class Itemization(models.Model):
     Number comments correspond to numbers on original sheet
     '''
     vehicle_price = models.PositiveIntegerField('車輌本体価格 (1)', null=True, blank=True)  # 1
+    previous_vehicle_price = models.PositiveIntegerField('下取車価額', null=True, blank=True)  # 16
     special_discount = models.PositiveIntegerField('特別値引き (2)', null=True, blank=True)  # 2
     # 3 not required
     # 4 is aggregate of 1, 2, 3
@@ -298,6 +299,15 @@ class Itemization(models.Model):
     def all_total(self):
         '''14 合計 ( 9 + 10 + 11 + 12)'''
         return sum(filter(None, [self.taxable_total, self.tax_exemption_total]))
+
+    @property
+    def final_total(self):
+        total = sum(filter(None, [
+            self.total_sale_price,
+            self.taxable_total,
+            self.all_tax_total
+        ])) or 0
+        return total - (self.previous_vehicle_price or 0)
 
 
 class PaymentDetails(models.Model):

@@ -93,7 +93,7 @@ class ExtrasRespository:
         return get_object_or_404(
             self.order_model,
             Q(itemization__consumption_tax__extras=section_id)
-            | Q(itemization__accessories__extras=section_id)
+            | Q(itemization__accessorie=section_id)
             | Q(itemization__custom_specs=section_id),
         )
 

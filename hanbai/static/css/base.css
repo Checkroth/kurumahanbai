@@ -2,6 +2,8 @@
     --light-color: #ADDAEF;
     --mid-color: #97BFD1;
     --dark-color: #479CC6;
+    --success: #DAEFAD;
+    --error: #EFADB9;
 }
 
 @media (max-width: 1100px) {
@@ -53,7 +55,9 @@ nav ul {
     justify-content: flex-start;
     background: #479CC6;
     padding: .2em 2em;
-
+    top: 0;
+    position: fixed;
+    width: 100%;
 }
 
 
@@ -61,7 +65,7 @@ nav li {
     /* flex: 1; */
     /* text-align: center; */
     border: solid white;
-    background: red;
+    background: var(--error);
 }
 
 ul.messages {
@@ -70,6 +74,8 @@ ul.messages {
 	top: 0;
 	position: fixed;
   border: none;
+  width: 100%;
+  top:50px;
 }
 
 ul.messages li {
@@ -79,11 +85,12 @@ ul.messages li {
 }
 
 ul.messages li.success {
-    color: green;
+    background: var(--success);
 }
 
 ul.messages li.error {
-    color: red;
+    color: white;
+    background: var(--error);
 }
 
 #mainform ul {

@@ -72,18 +72,19 @@ def order_list(request):
 
 
 @require_http_methods(['POST'])
-def set_form_generic(request, form_class, instance_id):
+def set_form_generic(request, form_class, instance_id, order_id):
     form = FORM_MAPPING.get(form_class)
     if not form:
         raise Http404('フォーム種類は存在しません。')
     instance = get_object_or_404(form._meta.model, pk=instance_id)
+    repo = api.get_order_repository()
+    order = repo.get_order_or_404(order_id)
     form = form(request.POST, instance=instance)
     if form.is_valid():
         form.save()
     else:
         return JsonResponse(form.errors, status=HTTPStatus.BAD_REQUEST)
-
-    return JsonResponse({})
+    return JsonResponse({'order': order.json()})
 
 
 @require_http_methods(['POST'])
