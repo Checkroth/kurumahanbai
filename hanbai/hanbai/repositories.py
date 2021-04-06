@@ -39,7 +39,7 @@ class OrderRepository:
 
     def get_all_orders(self):
         orders = self.order_model.objects.all()
-        return orders.order_by('-last_edited', '-completed')
+        return orders.order_by('last_edited', '-completed')
 
     def get_order_or_404(self, order_id):
         return get_object_or_404(self.order_model, pk=order_id)
