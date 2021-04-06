@@ -199,7 +199,6 @@ class Itemization(models.Model):
     Number comments correspond to numbers on original sheet
     '''
     vehicle_price = models.PositiveIntegerField('車輌本体価格 (1)', null=True, blank=True)  # 1
-    previous_vehicle_price = models.PositiveIntegerField('下取車価額', null=True, blank=True)  # 16
     special_discount = models.PositiveIntegerField('特別値引き (2)', null=True, blank=True)  # 2
     # 3 not required
     # 4 is aggregate of 1, 2, 3
@@ -307,7 +306,7 @@ class Itemization(models.Model):
             self.taxable_total,
             self.all_tax_total
         ])) or 0
-        return total - (self.previous_vehicle_price or 0)
+        return total - (self.trade_in_price or 0)
 
 
 class PaymentDetails(models.Model):
@@ -374,6 +373,8 @@ class Order(models.Model):
                 'consumption_tax_total': self.itemization.consumption_tax_total,
                 'tax_exemption_total': self.itemization.tax_exemption_total,
                 'all_total': self.itemization.all_total,
+                'final_total': self.itemization.final_total,
+                'trade_in_price': self.itemization.trade_in_price,
             },
         }
         for k, v in ret['itemization'].items():

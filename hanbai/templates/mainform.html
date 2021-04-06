@@ -169,7 +169,7 @@
 				<li class="math-separator">-</li>
 				<li class="noborder">
 					<div class="box-label">下取車価額</div>
-					<div class="box" data-item="previous_vehicle_price">{{ order.previous_vehicle_price }}x</div>
+					<div class="box" data-item="trade_in_price">{{ order.itemization.trade_in_price }}</div>
 				</li>
 			</ul>
 		</li>
@@ -226,7 +226,7 @@
 							</div>
 							<div class="tr">
 								<span class="td first">消費税合計</span>
-								<span class="td" data-item="all_tax_totals">
+								<span class="td" data-item="all_tax_total">
                   {{ order.itemization.all_tax_total|default_if_none:"" }}
                 </span>
 							</div>
@@ -238,6 +238,13 @@
               </div>
             </div>
 					</li>
+          <li class="basic-table blue-table">
+            <form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=itemization_form.form_class instance_id=itemization_form.instance.id %}">
+              {% csrf_token %}
+              <div class="tr shortform">{{ itemization_form.down_payment|as_columns|safe }}</div>
+              <div class="tr shortform">{{ itemization_form.trade_in_price|as_columns|safe }}</div>
+            </form>
+          </li>
           <li class="basic-table blue-table">
             <form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=order_form.form_class instance_id=order_form.instance.id %}">
               {% csrf_token %}

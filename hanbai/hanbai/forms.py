@@ -46,6 +46,7 @@ class CustomFieldForm(SelfCleaningForm):
         cleaned_data = super().clean()
         agnostic_value = cleaned_data.get('type_agnostic_value')
         if not agnostic_value:
+            cleaned_data['value_type'] = int(models.ExtraField.FieldTypeChoices.STRING)
             return cleaned_data
 
         try:
@@ -56,7 +57,7 @@ class CustomFieldForm(SelfCleaningForm):
         except (TypeError, ValueError):
             cleaned_data['integer_value'] = None
             cleaned_data['string_value'] = agnostic_value
-            cleaned_data['value_type'] = models.ExtraField.FieldTypeChoices.STRING.name
+            cleaned_data['value_type'] = int(models.ExtraField.FieldTypeChoices.STRING)
 
         return cleaned_data
 

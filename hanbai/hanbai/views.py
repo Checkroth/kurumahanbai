@@ -43,7 +43,7 @@ def edit_order(request, order_id):
     )
 
     ctx = {
-        'order': order,
+        'order': order.json(),
         'order_form': forms.OrderForm(instance=order),
         'vehicle_info_form': forms.VehicleInfoForm(instance=order.vehicle_info),
         'previous_vehicle_form': forms.PreviousVehicleInfoForm(instance=order.previous_vehicle_info, prefix='previous'),
