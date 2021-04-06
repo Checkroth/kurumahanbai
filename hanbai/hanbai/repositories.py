@@ -39,10 +39,16 @@ class OrderRepository:
 
     def get_all_orders(self):
         orders = self.order_model.objects.all()
-        return orders.order_by('last_edited', '-completed')
+        return orders.order_by('-last_edited', '-completed')
 
     def get_order_or_404(self, order_id):
         return get_object_or_404(self.order_model, pk=order_id)
+
+    def set_last_edited(self, order_id):
+        order = self.get_order_or_404(order_id)
+        order.last_edited = timezone.now()
+        order.save()
+        return order
 
     @transaction.atomic()
     def initialize_new_order(self):
@@ -93,7 +99,7 @@ class ExtrasRespository:
         return get_object_or_404(
             self.order_model,
             Q(itemization__consumption_tax__extras=section_id)
-            | Q(itemization__accessorie=section_id)
+            | Q(itemization__accessories=section_id)
             | Q(itemization__custom_specs=section_id),
         )
 

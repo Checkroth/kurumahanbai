@@ -79,7 +79,7 @@ def set_form_generic(request, form_class, instance_id, order_id):
         raise Http404('フォーム種類は存在しません。')
     instance = get_object_or_404(form._meta.model, pk=instance_id)
     repo = api.get_order_repository()
-    order = repo.get_order_or_404(order_id)
+    order = repo.set_last_edited(order_id)
     form = form(request.POST, instance=instance)
     if form.is_valid():
         form.save()
@@ -91,8 +91,10 @@ def set_form_generic(request, form_class, instance_id, order_id):
 @require_http_methods(['POST'])
 def process_existing_extras_form(request, instance_id):
     repo = api.get_extras_repo()
+    order_repo = api.get_order_repository()
     existing_field = repo.get_field_or_404(instance_id)
     order = repo.get_order_from_section(existing_field.section)
+    order_repo.set_last_edited(order.id)
     form_data = request.POST.copy()
     prefix = form_data.pop('form_prefix')[0]
     form_data[f'{prefix}-section'] = existing_field.section
@@ -112,7 +114,9 @@ def process_existing_extras_form(request, instance_id):
 @require_http_methods(['POST'])
 def process_new_extras_form(request, section_id):
     repo = api.get_extras_repo()
+    order_repo = api.get_order_repository()
     order = repo.get_order_from_section(section_id)
+    order_repo.set_last_edited(order.id)
     section = repo.get_section_or_404(section_id)
     form_data = request.POST.copy()
     prefix = form_data.pop('form_prefix')[0]
@@ -147,7 +151,7 @@ def download_report(request, order_id):
     order = repo.get_order_or_404(order_id)
     report = OrderReport(order)
     attachment = report.make_report()
-    return FileResponse(attachment, as_attachment=True, filename=f'{order.id}-{timezone.now().date()}.pdf')
+    return FileResponse(attachment, as_attachment=False, filename=f'{order.id}-{timezone.now().date()}.pdf')
 
 
 @require_http_methods(['GET'])
