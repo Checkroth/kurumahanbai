@@ -6,7 +6,7 @@ from xml.sax.saxutils import escape
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table as BoxTable, TableStyle, Image
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib import enums, colors
@@ -30,6 +30,18 @@ SIXTHS = WIDTH // 6
 EIGHTHS = WIDTH // 8
 SIXTEENTHS = EIGHTHS // 2
 THIRTY2NDS = SIXTEENTHS // 2
+
+LIGHT_COLOR = '#ADDAEF'
+MID_COLOR = '#97BFD1'
+DARK_COLOR = '#479CC6'
+
+
+class Table(BoxTable):
+    def _drawBox(self,  start, end, weight, color, count, space):
+        sc , sr = start
+        ec , er = end
+        self.canv.setStrokeColor(color)
+        self.canv.roundRect(sc, sr, self._width, self._height, 2.5)
 
 
 class OrderReport:
@@ -66,8 +78,8 @@ class OrderReport:
         ]
         self.basic_tablestyle = deepcopy(self.floating_tablestyle)
         self.basic_tablestyle += [
-            ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-            ('BOX', (0, 0), (-1, -1), .5, colors.black),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, MID_COLOR),
+            ('BOX', (0, 0), (-1, -1), .5, MID_COLOR),
         ]
         self.totals_style = deepcopy(self.styles['Normal'])
         self.totals_style.fontSize = 7
@@ -148,27 +160,33 @@ class OrderReport:
         consumption_tax = 0
         previous_vehicle_cost = 0
         total = sale_price + expenses
-        style = self.totals_style
-
+        header_style = self.totals_style
+        number_style = deepcopy(header_style)
+        number_style.alignment = enums.TA_RIGHT
+        number_style.leading = 8
+        cellstyle = [
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, MID_COLOR),
+            ('BOX', (0, 0), (0, 0), .5, MID_COLOR),
+        ]
         table = Table([
-            [Paragraph('お支払い現金合計', style),
-             Paragraph('=', style),
-             Paragraph('車輌販売価額', style),
-             Paragraph('+', style),
-             Paragraph('諸費用合計', style),
-             Paragraph('+', style),
-             Paragraph('消費税合計', style),
-             Paragraph('-', style),
-             Paragraph('下取車価額', style)],
-            [Paragraph(f'{total:n}', style),
-             Paragraph('=', style),
-             Paragraph(f'{sale_price:n}', style),
-             Paragraph('+', style),
-             Paragraph(f'{expenses:n}', style),
-             Paragraph('+', style),
-             Paragraph(f'{consumption_tax:n}', style),
-             Paragraph('-', style),
-             Paragraph(f'{previous_vehicle_cost:n}', style)]
+            [Paragraph('お支払い現金合計', header_style),
+             Paragraph('=', header_style),
+             Paragraph('車輌販売価額(9)', header_style),
+             Paragraph('+', header_style),
+             Paragraph('諸費用合計(10)+(11)+(12)', header_style),
+             Paragraph('+', header_style),
+             Paragraph('消費税合計(13)', header_style),
+             Paragraph('-', header_style),
+             Paragraph('下取車価額(16)', header_style)],
+            [Table([[Paragraph(f'{total:,}', number_style)]], style=cellstyle),
+             Paragraph('=', header_style),
+             Table([[Paragraph(f'{sale_price:,}', number_style)]], style=cellstyle),
+             Paragraph('+', header_style),
+             Table([[Paragraph(f'{expenses:,}', number_style)]], style=cellstyle),
+             Paragraph('+', header_style),
+             Table([[Paragraph(f'{consumption_tax:,}', number_style)]], style=cellstyle),
+             Paragraph('-', header_style),
+             Table([[Paragraph(f'{previous_vehicle_cost:,}', number_style)]], style=cellstyle)]
         ], rowHeights=(15, 15))
         tstyle = deepcopy(self.floating_tablestyle)
         tstyle += [
@@ -296,6 +314,8 @@ class OrderReport:
         extra_equipment = self._text_to_lines(info.extra_equipment, 48)
         cell_from_fieldname = self._cell_from_fieldname(info)
         cell_from_fieldval = self._cell_from_fieldval(info)
+        inspection_year = info.inspection_year or '　'
+        inspection_month = info.inspection_month or '　'
         table = Table([
             [Paragraph('車輌明細', self.styles['Heading4'])],
             [cell_from_fieldname('car_name'), cell_from_fieldval('car_name')],
@@ -306,7 +326,7 @@ class OrderReport:
             [cell_from_fieldname('distance_traveled'), cell_from_fieldval('distance_traveled'),
              cell_from_fieldname('registration_number'), cell_from_fieldval('registration_number')],
             [cell_from_fieldname('engine_displacement'), cell_from_fieldval('engine_displacement'),
-             Paragraph('車検', self.normal_style), Paragraph(f'{info.inspection_year}年{info.inspection_month}月', self.normal_style)],
+             Paragraph('車検', self.normal_style), Paragraph(f'{inspection_year}年{inspection_month}月', self.normal_style)],
             [cell_from_fieldname('expected_delivery_year'), Paragraph(f'{info.expected_delivery_year}年', self.normal_style),
              cell_from_fieldname('doors'), cell_from_fieldval('doors')],
             [cell_from_fieldname('extra_equipment'), Paragraph(extra_equipment, self.normal_style)],
@@ -370,6 +390,7 @@ class OrderReport:
         ], colWidths=[SIXTEENTHS // 2, SIXTEENTHS, (EIGHTHS * 2), EIGHTHS])
         style = deepcopy(self.basic_tablestyle)
         style += [
+            ('BACKGROUND', (0, 0), (0, 0), LIGHT_COLOR),
             ('VALAIGN', (0, 0), (0, -1), 'MIDDLE'),
             ('SPAN', (0, 0), (0, -1)),
             ('SPAN', (2, 0), (3, 0)),
@@ -398,6 +419,7 @@ class OrderReport:
         ], colWidths = [SIXTEENTHS // 2, SIXTEENTHS, (EIGHTHS * 2), EIGHTHS])
         style = deepcopy(self.basic_tablestyle)
         style += [
+            ('BACKGROUND', (0, 0), (0, 0), LIGHT_COLOR),
             ('VALIGN', (0, 0), (0, -1), 'MIDDLE'),
             ('SPAN', (0, 0), (0, -1)),
             ('SPAN', (2, 0), (3, 0)),
@@ -426,7 +448,10 @@ class OrderReport:
             [Paragraph('消費税合計 (13)', self.normal_style), cell_from_fieldval('all_tax_total')],
             [Paragraph('合計 (14)', self.normal_style), cell_from_fieldval('all_total')],
         ])
-        style = deepcopy(self.basic_tablestyle)        
+        style = deepcopy(self.basic_tablestyle)
+        style += [
+            ('BACKGROUND', (0, 0), (0, -1), LIGHT_COLOR),
+        ]
         table.setStyle(style)
         return table
 
@@ -439,6 +464,9 @@ class OrderReport:
             [cell_from_fieldname('trade_in_price'), cell_from_fieldval('trade_in_price')],
         ])
         style = deepcopy(self.basic_tablestyle)        
+        style += [
+            ('BACKGROUND', (0, 0), (0, -1), LIGHT_COLOR),
+        ]
         table.setStyle(style)
         return table
 
@@ -455,17 +483,25 @@ class OrderReport:
             [cell_from_fieldname('credit_card_company'), cell_from_fieldval('credit_card_company')],
         ])
         style = deepcopy(self.basic_tablestyle)        
+        style += [
+            ('BACKGROUND', (0, 0), (0, -1), LIGHT_COLOR),
+        ]
         table.setStyle(style)
         return table
 
     def notes(self):
         notes = self._text_to_lines(self.order.notes, 48)
+        notes_cell = Table([[Paragraph(notes, self.normal_style)]], rowHeights=[40])
         table = Table([
             [Paragraph('備考', self.styles['Heading4'])],
-            [Paragraph(notes, self.normal_style)]
-        ])
-        style = deepcopy(self.basic_tablestyle)
-        table.setStyle(style)
+            [notes_cell]
+        ], rowHeights=[10, 40])
+        # table.setStyle(style)
+        style = [
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, MID_COLOR),
+            ('BOX', (0, 0), (-1, -1), .5, MID_COLOR),
+        ]
+        notes_cell.setStyle(style)
         return table
 
     def tax_insurance(self):
@@ -480,10 +516,13 @@ class OrderReport:
             ['', cell_from_fieldname('vehicle_liability_insurance'), cell_from_fieldval('vehicle_liability_insurance')],
             ['', cell_from_fieldname('optional_insurance'), cell_from_fieldval('optional_insurance')],
             ['', cell_from_fieldname('stamp_duty'), cell_from_fieldval('stamp_duty')],
-            ['', Paragraph('計', self.normal_style), Paragraph(str(info.total), self.right_style)],
+            ['', Paragraph('計 (10)', self.center_style), Paragraph(str(info.total), self.right_style)],
         ], colWidths=[THIRTY2NDS, (THIRDS // 2) - THIRTY2NDS, (THIRDS // 2) - THIRTY2NDS])
         style = deepcopy(self.basic_tablestyle)
         style += [
+            ('BACKGROUND', (0, 0), (0, 0), MID_COLOR),
+            ('BACKGROUND', (1, 0), (1, -1), LIGHT_COLOR),
+            ('BACKGROUND', (1, -1), (1, -1), MID_COLOR),
             ('VALAIGN', (0, 0), (0, -1), 'MIDDLE'),
             ('SPAN', (0, 0), (0, -1)),
         ]
@@ -507,6 +546,7 @@ class OrderReport:
             ['', cell_from_fieldname('remaining_liability'), '', cell_from_fieldval('remaining_liability')],
             ['', cell_from_fieldname('recycle_management_fee'), '', cell_from_fieldval('recycle_management_fee')],
         ] + self.cells_from_extras(info.extras, leading=1)
+        rows += [['', Paragraph('計 (11)', self.center_style), Paragraph(str(info.total), self.right_style)]]
         table = Table(
             rows,
             colWidths=[
@@ -523,6 +563,9 @@ class OrderReport:
             for rownum in range(3, len(rows) + 1)
         ]
         style += [
+            ('BACKGROUND', (0, 0), (0, 0), MID_COLOR),
+            ('BACKGROUND', (1, 0), (2, -1), LIGHT_COLOR),
+            ('BACKGROUND', (1, -1), (1, -1), MID_COLOR),
             ('VALAIGN', (0, 0), (0, -1), 'MIDDLE'),
             ('VALAIGN', (1, 0), (1, 0), 'MIDDLE'),
             ('SPAN', (0, 0), (0, -1)),
@@ -546,6 +589,7 @@ class OrderReport:
              cell_from_fieldval('previous_vehicle_processing_exemption')],
             ['', cell_from_fieldname('recycle_deposit'), '', cell_from_fieldval('recycle_deposit')]
         ]
+        rows += [['', Paragraph('計 (12)', self.center_style), Paragraph(str(info.total), self.right_style)]]
         table = Table(
             rows,
             colWidths=[
@@ -562,6 +606,9 @@ class OrderReport:
             for rownum in range(3, len(rows) + 1)
         ]
         style += [
+            ('BACKGROUND', (0, 0), (0, 0), MID_COLOR),
+            ('BACKGROUND', (1, 0), (2, -1), LIGHT_COLOR),
+            ('BACKGROUND', (1, -1), (1, -1), MID_COLOR),
             ('SPAN', (0, 0), (0, -1)),
             ('SPAN', (1, 0), (1, 2)),
         ]
@@ -576,7 +623,7 @@ class OrderReport:
         rows = [
             [Paragraph('<br />'.join('付属品'), self.vertical_style), '', ''],
         ] + itemized_rows + [
-            ['', Paragraph('計 (5)', self.normal_style), Paragraph(total, self.right_style)],
+            ['', Paragraph('計 (5)', self.center_style), Paragraph(total, self.right_style)],
         ]
         table = Table(
             rows,
@@ -585,6 +632,8 @@ class OrderReport:
         )
         style = deepcopy(self.basic_tablestyle)
         style += [
+            ('BACKGROUND', (0, 0), (0, -1), LIGHT_COLOR),
+            ('BACKGROUND', (1, -1), (1, -1), LIGHT_COLOR),
             ('SPAN', (0, 0), (0, -1)),
         ]
         table.setStyle(style)
@@ -597,7 +646,7 @@ class OrderReport:
         rows = [
             [Paragraph('<br />'.join('特別仕様'), self.vertical_style), '', ''],
         ] + itemized_rows + [
-            ['', Paragraph('計 (6)', self.normal_style), Paragraph(total, self.right_style)],
+            ['', Paragraph('計 (6)', self.center_style), Paragraph(total, self.right_style)],
         ]
         table = Table(
             rows,
@@ -606,6 +655,8 @@ class OrderReport:
         )
         style = deepcopy(self.basic_tablestyle)
         style += [
+            ('BACKGROUND', (0, 0), (0, -1), LIGHT_COLOR),
+            ('BACKGROUND', (1, -1), (1, -1), LIGHT_COLOR),
             ('SPAN', (0, 0), (0, -1)),
         ]
         table.setStyle(style)

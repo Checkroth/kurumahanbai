@@ -160,3 +160,11 @@ class TaxExemptionForm(SelfCleaningForm):
     class Meta:
         fields = '__all__'
         model = models.TaxExemption
+
+
+class OrderForm(SelfCleaningForm):
+    form_class = 'order'
+
+    class Meta:
+        fields = ('notes', 'person_in_charge')
+        model = models.Order

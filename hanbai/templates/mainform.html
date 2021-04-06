@@ -238,6 +238,13 @@
               </div>
             </div>
 					</li>
+          <li class="basic-table blue-table">
+            <form class="table" method="POST" action="{% url 'set_form_generic' order_id=order.id form_class=order_form.form_class instance_id=order_form.instance.id %}">
+              {% csrf_token %}
+              <div class="tr shortform">{{ order_form.notes|as_columns|safe }}</div>
+              <div class="tr shortform">{{ order_form.person_in_charge|as_columns|safe }}</div>
+            </form>
+          </li>
 				</ul>
 				<ul class="bottom-col-2 col thirds">
 					<li class="table-container">

@@ -2,6 +2,7 @@ from . import forms
 
 
 FORM_MAPPING = {
+    forms.OrderForm.form_class: forms.OrderForm,
     forms.CustomFieldForm.form_class: forms.CustomFieldForm,
     forms.VehicleInfoForm.form_class: forms.VehicleInfoForm,
     forms.PreviousVehicleInfoForm.form_class: forms.PreviousVehicleInfoForm,

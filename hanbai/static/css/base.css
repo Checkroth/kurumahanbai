@@ -45,6 +45,7 @@ h1 {
 .container {
     display: flex;
     flex-direction: column;
+    margin-top: 50px;
 }
 
 nav ul {
@@ -102,10 +103,6 @@ ul.messages li.error {
 
 #mainform span.td {
     min-width: 70px;
-}
-
-ul.main-row {
-    margin: 2em 0;
 }
 
 #mainform li {
