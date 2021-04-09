@@ -4,3 +4,4 @@ reportlab
 pytest
 pytest-django
 gunicorn
+whitenoise
