@@ -33,22 +33,28 @@ class OrderRepository:
         try:
             self.order_model.objects.filter(
                 completed__isnull=True,
+                archived=False,
             ).latest('last_edited')
         except self.order_model.DoesNotExist:
             return None
 
     def get_all_orders(self):
-        orders = self.order_model.objects.all()
+        orders = self.order_model.objects.filter(archived=False)
         return orders.order_by('-last_edited', '-completed')
 
     def get_order_or_404(self, order_id):
-        return get_object_or_404(self.order_model, pk=order_id)
+        return get_object_or_404(self.order_model, pk=order_id, archived=False)
 
     def set_last_edited(self, order_id):
         order = self.get_order_or_404(order_id)
         order.last_edited = timezone.now()
         order.save()
         return order
+
+    def delete_order(self, order_id):
+        order = self.get_order_or_404(order_id)
+        order.archived = True
+        order.save()
 
     @transaction.atomic()
     def initialize_new_order(self):

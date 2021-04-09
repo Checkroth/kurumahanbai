@@ -8,31 +8,41 @@
 <table id="orders-table">
 	<thead>
 		<tr>
-			<th>車名</th>
+			<th class="hide-mobile">車名</th>
 			<th>購入者</th>
 			<!-- <th>完了日時</th> -->
 			<th>変更日時</th>
-			<th>着手日時</th>
-			<th></th>
-			<th></th>
-			<th></th>
+			<th class="hide-mobile">着手日時</th>
 		</tr>
 	</thead>
 	<tbody>
 		{% for order in orders %}
 		<tr class="{% if forloop.counter|divisibleby:2%}even{% else %}odd{% endif %}">
-			<td>{{ order.vehicle_info.car_name }}</td>
+			<td class="hide-mobile">{{ order.vehicle_info.car_name }}</td>
 			<td>{{ order.customer_info.name }}</td>
 			<!-- <td>{% if order.completed %}{{ order.completed|date:"Y/m/d H:i" }}{% endif %}</td> -->
 			<td>{% if order.last_edited %}{{ order.last_edited|date:"Y/m/d H:i" }}{% endif %}</td>
-			<td>{{ order.started|date:"Y/m/d H:i" }}</td>
+			<td class="hide-mobile">{{ order.started|date:"Y/m/d H:i" }}</td>
 			<td class="table-link"><a href="{% url 'edit_order' order_id=order.id %}">編集</a></td>
 			<td class="table-link"><a href="">コピー</a></td>
 			<td class="table-link"><a href="{% url 'download_report' order_id=order.id %}" target="_blank">PDF</a></td>
+			<td class="table-link"><a data-order-id="{{ order.id }}" class="delete-link" href="{% url 'delete_order' order_id=order.id %}" target="_blank">削除</a></td>
 		</tr>
 		{% endfor %}
 	</tbody>
 </table>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_footer %}
+<script>
+ function deleteModal() {
+     
+ }
+  for (let a of document.querySelectorAll('a.delete-link')) {
+      /* a.onclick = deleteModal; */
+  }
+
+</script>
 {% endblock %}

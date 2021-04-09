@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, Http404, FileResponse
 from django.views.decorators.http import require_http_methods
@@ -12,6 +13,7 @@ from .reports import OrderReport
 from .constants import FORM_MAPPING
 
 
+@login_required
 def top(request):
     order_repo = api.get_order_repository()
     in_progress_order = order_repo.get_in_progress_order()
@@ -22,6 +24,7 @@ def top(request):
         return redirect('order_list')
 
 
+@login_required
 def edit_order(request, order_id):
     repo = api.get_order_repository()
     order = repo.get_order_or_404(order_id)
@@ -60,18 +63,21 @@ def edit_order(request, order_id):
     return render(request, 'mainform.html', ctx)
 
 
+@login_required
 def create_new_order(request):
     repo = api.get_order_repository()
     order = repo.initialize_new_order()
     return redirect('edit_order', order_id=order.pk)
 
 
+@login_required
 def order_list(request):
     repo = api.get_order_repository()
     orders = repo.get_all_orders()
     return render(request, 'order_list.html', {'orders': orders})
 
 
+@login_required
 @require_http_methods(['POST'])
 def set_form_generic(request, form_class, instance_id, order_id):
     form = FORM_MAPPING.get(form_class)
@@ -88,6 +94,7 @@ def set_form_generic(request, form_class, instance_id, order_id):
     return JsonResponse({'order': order.json()})
 
 
+@login_required
 @require_http_methods(['POST'])
 def process_existing_extras_form(request, instance_id):
     repo = api.get_extras_repo()
@@ -111,6 +118,7 @@ def process_existing_extras_form(request, instance_id):
     return JsonResponse({'order': order.json()})
 
 
+@login_required
 @require_http_methods(['POST'])
 def process_new_extras_form(request, section_id):
     repo = api.get_extras_repo()
@@ -138,6 +146,7 @@ def process_new_extras_form(request, section_id):
     return JsonResponse({'new_action': update_action, 'order': order.json()})
 
 
+@login_required
 @require_http_methods(['DELETE'])
 def delete_extra_field(request, instance_id):
     repo = api.get_extras_repo()
@@ -145,6 +154,7 @@ def delete_extra_field(request, instance_id):
     return JsonResponse({})
     
 
+@login_required
 @require_http_methods(['GET'])
 def download_report(request, order_id):
     repo = api.get_order_repository()
@@ -154,8 +164,17 @@ def download_report(request, order_id):
     return FileResponse(attachment, as_attachment=False, filename=f'{order.id}-{timezone.now().date()}.pdf')
 
 
+@login_required
 @require_http_methods(['GET'])
 def get_order(request, order_id):
     repo = api.get_order_repository()
     order = repo.get_order_or_404(order_id)
     return JsonResponse({'order': order.json()})
+
+
+@login_required
+@require_http_methods(['GET'])
+def delete_order(request, order_id):
+    repo = api.get_order_repository()
+    repo.delete_order(order_id)
+    return redirect('order_list')

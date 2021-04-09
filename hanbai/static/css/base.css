@@ -45,6 +45,10 @@
         width: 100%!important;
         border: solid 1px var(--dark-color)!important;
     }
+
+    .hide-mobile {
+        display: none!important;
+    }
 }
 
 h1 {
@@ -78,7 +82,7 @@ nav li {
     /* text-align: center; */
     border: solid white;
     background: var(--error);
-    width: 30em;
+    width: 20em;
     text-align: center;
     border: none;
 }
@@ -341,3 +345,43 @@ div.tr.shortform span.td.second {
 #mainform li.basic-table.blue-table {
     padding: 0;
 }
+
+
+#login {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    margin-top: 5%;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+#login form {
+    width: 300px;
+    padding: 1em;
+    border: solid 5px var(--light-color);
+    text-align: center;
+}
+
+#login input {
+    border-radius: 5px;
+    border: solid 1px var(--mid-color);
+}
+
+#login input:focus {
+    outline-width: 2px;
+    outline-color: var(--dark-color);
+}
+
+#login input.button {
+    width: 100%;
+    background: var(--light-color);
+}
+
+#login input.button:hover {
+    background: var(--dark-color);
+    color: white;
+    cursor: pointer;
+}
+    
+

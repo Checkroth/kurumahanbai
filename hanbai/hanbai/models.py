@@ -324,6 +324,7 @@ class Order(models.Model):
     started = models.DateTimeField()
     last_edited = models.DateTimeField(null=True, blank=True)
     completed = models.DateTimeField(null=True, blank=True)
+    archived = models.BooleanField(default=False)
 
     # SellerAddress? (父さん会社情報)
     vehicle_info = models.OneToOneField(

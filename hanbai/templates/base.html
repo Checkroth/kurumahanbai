@@ -14,8 +14,11 @@
 	<body class="container">
 		<nav>
 			<ul>
-				<li><a href="{% url 'create_new_order' %}">作成</a></li>
+				{% if request.user.is_authenticated %}
 				<li><a href="{% url 'order_list' %}">過去の見積書</a></li>
+				<li><a href="{% url 'create_new_order' %}">新規作成</a></li>
+				<li><a href="{% url 'logout' %}">ログアウト</a></li>
+				{% endif %}
 			</ul>
 		</nav>
 		<div>
