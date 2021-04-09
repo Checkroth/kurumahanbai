@@ -2,7 +2,10 @@
 
 {% block content %}
 {% if not orders %}	
-注文書は存在しません。<a href="{% url 'create_new_order' %}">新規作成してください</a>
+
+<div id="no-orders">
+  注文書は存在しません。<a href="{% url 'create_new_order' %}">新規作成してください</a>
+</div>
 {% else %}
 <h1>過去の見積書</h1>
 <table id="orders-table">
@@ -38,11 +41,10 @@
 {% block extra_footer %}
 <script>
  function deleteModal() {
-     
  }
-  for (let a of document.querySelectorAll('a.delete-link')) {
-      /* a.onclick = deleteModal; */
-  }
+ for (let a of document.querySelectorAll('a.delete-link')) {
+   /* a.onclick = deleteModal; */
+ }
 
 </script>
 {% endblock %}
