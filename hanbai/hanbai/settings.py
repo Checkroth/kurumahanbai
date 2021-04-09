@@ -28,10 +28,9 @@ SECRET_KEY = '6-fsgv4cbs%++ppx24m_+#pkvn!u-e1x#m(cdx2np8daktjrws'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.getenv('DEBUG'))
 
+ALLOWED_HOSTS = ['kbai.herokuapp.com']
 if DEBUG:
-    ALLOWED_HOSTS = []
-else:
-    ALLOWED_HOSTS = ['kbai.herokuapp.com']
+    ALLOWED_HOSTS += ['*']
 
 
 # Application definition
