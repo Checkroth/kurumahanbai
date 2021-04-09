@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'hanbai.wsgi.application'
 DATABASES = {}
 
 if os.getenv('DATABASE_URL'):
-    DATABASES['default'] = dj_database_url(os.getenv('DATABASE_URL'))
+    DATABASES['default'] = dj_database_url.config(os.getenv('DATABASE_URL'))
 else:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
